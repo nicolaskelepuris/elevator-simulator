@@ -1,25 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Events;
 
 namespace Presentation
 {
     public partial class MainPage : Form
     {
         private Elevator elevator;
-        
+
         public MainPage()
         {
             elevator = new Elevator();
             InitializeComponent();
+            BindControls();
+        }
+
+        private void BindControls()
+        {
+            elevator.AddCurrentFloorChangedEventSubscriber(UpdateCurrentFloorTextBox);
+        }
+
+        private void UpdateCurrentFloorTextBox(object sender, CurrentFloorChangedEventArgs e) {
+            var floor = (int)e.Floor;
+            this.currentFloorBox.Text = floor.ToString();
         }
 
         private void AddInternalCommand(FloorEnum floor)

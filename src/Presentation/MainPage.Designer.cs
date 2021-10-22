@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.currentFloorBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.inner4 = new System.Windows.Forms.Button();
             this.inner2 = new System.Windows.Forms.Button();
@@ -40,6 +42,8 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.currentFloorBox);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.inner4);
             this.panel1.Controls.Add(this.inner2);
@@ -50,6 +54,26 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(345, 386);
             this.panel1.TabIndex = 0;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(132, 75);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(68, 15);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Andar atual";
+            // 
+            // currentFloorBox
+            // 
+            this.currentFloorBox.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.currentFloorBox.Location = new System.Drawing.Point(118, 45);
+            this.currentFloorBox.Name = "currentFloorBox";
+            this.currentFloorBox.ReadOnly = true;
+            this.currentFloorBox.Size = new System.Drawing.Size(102, 23);
+            this.currentFloorBox.TabIndex = 8;
+            this.currentFloorBox.Text = "0";
+            this.currentFloorBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label1
             // 
@@ -137,6 +161,8 @@
         private System.Windows.Forms.Button inner1;
         private System.Windows.Forms.Button innerGround;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox currentFloorBox;
     }
 }
 
