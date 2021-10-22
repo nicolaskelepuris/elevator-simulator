@@ -73,9 +73,8 @@ namespace Domain.Entities
                 default:
                     return;
             }
-            var raiseEvent = MoveElevatorEvent;
 
-            raiseEvent?.Invoke(this, e);
+            MoveElevatorEvent.Invoke(this, e);
         }
 
         private async Task MoveUp(object sender, MoveElevatorEventArgs e)
