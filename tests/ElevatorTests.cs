@@ -12,7 +12,7 @@ namespace tests
 {
     public class ElevatorTests
     {
-        private const int MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR = 100;
+        private const int MILLISECONDS_TO_WAIT_FOR_EACH_FLOOR = 100;
 
         private readonly IElevatorDelaySimulator _delaySimulator;
         public ElevatorTests()
@@ -80,7 +80,7 @@ namespace tests
             var command = new Command(floor, type);
 
             elevator.AddCommand(command);
-            var timeToWait = MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * (int) floor;
+            var timeToWait = MILLISECONDS_TO_WAIT_FOR_EACH_FLOOR * (int) floor;
             await Task.Delay(timeToWait);
         }
 
@@ -97,7 +97,7 @@ namespace tests
             elevator.AddCommand(internalCommand);
             elevator.AddCommand(downCommand);
 
-            await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 3);
+            await Task.Delay(MILLISECONDS_TO_WAIT_FOR_EACH_FLOOR * 3);
 
             elevator.CurrentFloor.Should().Be(finalFloor);
             var visitedFloors = logger.VisitedFloors;
@@ -119,7 +119,7 @@ namespace tests
             elevator.AddCommand(downCommand);
             elevator.AddCommand(upCommand);
 
-            await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 5);
+            await Task.Delay(MILLISECONDS_TO_WAIT_FOR_EACH_FLOOR * 5);
 
             elevator.CurrentFloor.Should().Be(finalFloor);
             var visitedFloors = logger.VisitedFloors;
@@ -143,7 +143,7 @@ namespace tests
             elevator.AddCommand(thirdCommand);
             elevator.AddCommand(fourthCommand);
 
-            await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 5);
+            await Task.Delay(MILLISECONDS_TO_WAIT_FOR_EACH_FLOOR * 5);
 
             var visitedFloors = logger.VisitedFloors;
             visitedFloors.Should().HaveCount(4);
@@ -161,7 +161,7 @@ namespace tests
 
             elevator.AddCommand(command);
 
-            await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 4);
+            await Task.Delay(MILLISECONDS_TO_WAIT_FOR_EACH_FLOOR * 4);
 
             var visitedFloors = logger.VisitedFloors;
             visitedFloors.Should().HaveCount(1);
