@@ -19,5 +19,14 @@ namespace tests
 
             elevator.CommandQueueContains(new Command(floor, type)).Should().BeTrue();
         }
+
+        [Fact]
+        public void ShouldStartStoppedAtGroundFloor()
+        {
+            var elevator = new Elevator();
+
+            elevator.CurrentFloor.Should().Be(FloorEnum.Ground);
+            elevator.Status.Should().Be(ElevatorStatusEnum.Stopped);
+        }
     }
 }
