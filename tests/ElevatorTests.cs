@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Enums;
@@ -96,6 +97,28 @@ namespace tests
             await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 5);
 
             elevator.CurrentFloor.Should().Be(finalFloor);
+        }
+
+        [Fact]
+        public async Task ShouldMoveUpStoppingAtFloorsInAscendingFloorOrder()
+        {
+            var commandType = CommandTypeEnum.Up;
+            var firstCommand = new Command(FloorEnum.Four, commandType);
+            var secondCommand = new Command(FloorEnum.Three, commandType);
+            var thirdCommand = new Command(FloorEnum.One, commandType);
+            var fourthCommand = new Command(FloorEnum.Two, commandType);
+            var elevator = new Elevator();
+
+            elevator.AddCommand(firstCommand);
+            elevator.AddCommand(secondCommand);
+            elevator.AddCommand(thirdCommand);
+            elevator.AddCommand(fourthCommand);
+
+            await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 5);
+
+            var visitedFloors = elevator.VisitedFloors;
+            visitedFloors.Should().HaveCount(4);
+            visitedFloors.Should().ContainInOrder(new List<int>() { 1, 2, 3, 4 });
         }
     }
 }

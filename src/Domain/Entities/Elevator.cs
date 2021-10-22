@@ -16,11 +16,14 @@ namespace Domain.Entities
         public ElevatorStatusEnum Status { get; private set; }
         private delegate Task MoveElevatorEventHandler(object sender, MoveElevatorEventArgs e);
         private event MoveElevatorEventHandler MoveElevatorEvent;
+        private List<int> visitedFloors;
+        public List<int> VisitedFloors { get => new List<int>(visitedFloors ?? Enumerable.Empty<int>()); }
 
         public Elevator()
         {
             commands = new Queue<Command>();
             CurrentFloor = FloorEnum.Ground;
+            visitedFloors = new List<int>();
             Stop();
         }
 
@@ -90,7 +93,7 @@ namespace Domain.Entities
 
                 if (ShouldMakeShortStop(commandsToGoToCurrentFloor))
                 {
-                    await Task.Delay(MILLISECONDS_TO_PERFORM_SHORT_STOP_AT_FLOOR);
+                    await MakeShortStopAtCurrentFloorAsync();
                 }
 
                 RemoveCommands(commandsToGoToCurrentFloor);
@@ -128,6 +131,12 @@ namespace Domain.Entities
             return commandsToGoToCurrentFloor.Any(c => CommandQueueContains(c));
         }
 
+        private async Task MakeShortStopAtCurrentFloorAsync()
+        {
+            visitedFloors.Add((int)CurrentFloor);
+            await Task.Delay(MILLISECONDS_TO_PERFORM_SHORT_STOP_AT_FLOOR);
+        }
+
         private void RemoveCommands(IEnumerable<Command> commandsToRemove)
         {
             var commandsAfterRemove = commands.Where(c => !commandsToRemove.Any(command => command.Equals(c)));
@@ -160,7 +169,7 @@ namespace Domain.Entities
 
                 if (ShouldMakeShortStop(commandsToGoToCurrentFloor))
                 {
-                    await Task.Delay(MILLISECONDS_TO_PERFORM_SHORT_STOP_AT_FLOOR);
+                    await MakeShortStopAtCurrentFloorAsync();
                 }
 
                 RemoveCommands(commandsToGoToCurrentFloor);
