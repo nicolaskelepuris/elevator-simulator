@@ -10,7 +10,7 @@ namespace Domain.Entities
     public class Elevator
     {
         public const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 1000;
-        private const int MILLISECONDS_TO_PERFORM_SHORT_STOP_AT_FLOOR = 500;
+        public const int MILLISECONDS_TO_PERFORM_SHORT_STOP_AT_FLOOR = 500;
         private Queue<Command> commands;
         public FloorEnum CurrentFloor { get; private set; }
         public ElevatorStatusEnum Status { get; private set; }
@@ -21,6 +21,11 @@ namespace Domain.Entities
         {
             commands = new Queue<Command>();
             CurrentFloor = FloorEnum.Ground;
+            Stop();
+        }
+
+        private void Stop()
+        {
             Status = ElevatorStatusEnum.Stopped;
         }
 
@@ -32,8 +37,11 @@ namespace Domain.Entities
 
             if (ShouldMoveUp(nextCommand))
             {
-                MoveElevatorEvent += MoveUp;
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
+            }
+            else if (ShouldMoveDown(nextCommand))
+            {
+                OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
             }
         }
 
@@ -49,6 +57,19 @@ namespace Domain.Entities
 
         private void OnMoveElevatorEvent(MoveElevatorEventArgs e)
         {
+            switch (e.MoveType)
+            {
+                case MoveTypeEnum.Up:
+                    MoveElevatorEvent -= MoveDown;
+                    MoveElevatorEvent += MoveUp;
+                    break;
+                case MoveTypeEnum.Down:
+                    MoveElevatorEvent -= MoveUp;
+                    MoveElevatorEvent += MoveDown;
+                    break;
+                default:
+                    return;
+            }
             var raiseEvent = MoveElevatorEvent;
 
             raiseEvent?.Invoke(this, e);
@@ -56,6 +77,8 @@ namespace Domain.Entities
 
         private async Task MoveUp(object sender, MoveElevatorEventArgs e)
         {
+            Status = ElevatorStatusEnum.GoingUp;
+
             while (ShouldContinueMovingUp())
             {
                 await MoveToNextFloorAsync(MoveTypeEnum.Up);
@@ -72,23 +95,13 @@ namespace Domain.Entities
 
                 RemoveCommands(commandsToGoToCurrentFloor);
             }
+
+            Stop();
         }
 
         private bool ShouldContinueMovingUp()
         {
             return commands.Any(c => c.Floor > CurrentFloor && c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Up);
-        }
-
-        private void RemoveCommands(IEnumerable<Command> commandsToRemove)
-        {
-            var commandsAfterRemove = commands.Where(c => !commandsToRemove.Any(command => command.Equals(c)));
-
-            this.commands = new Queue<Command>(commandsAfterRemove);
-        }
-
-        private bool ShouldMakeShortStop(IEnumerable<Command> commandsToGoToCurrentFloor)
-        {
-            return commandsToGoToCurrentFloor.Any(c => CommandQueueContains(c));
         }
 
         private async Task MoveToNextFloorAsync(MoveTypeEnum moveType)
@@ -103,6 +116,52 @@ namespace Domain.Entities
             {
                 CurrentFloor -= 1;
             }
+        }
+
+        private bool ShouldMakeShortStop(IEnumerable<Command> commandsToGoToCurrentFloor)
+        {
+            return commandsToGoToCurrentFloor.Any(c => CommandQueueContains(c));
+        }
+
+        private void RemoveCommands(IEnumerable<Command> commandsToRemove)
+        {
+            var commandsAfterRemove = commands.Where(c => !commandsToRemove.Any(command => command.Equals(c)));
+
+            this.commands = new Queue<Command>(commandsAfterRemove);
+        }
+
+        private bool ShouldMoveDown(Command nextCommand)
+        {
+            return nextCommand.Floor < CurrentFloor && Status == ElevatorStatusEnum.Stopped;
+        }
+
+        private async Task MoveDown(object sender, MoveElevatorEventArgs e)
+        {
+            Status = ElevatorStatusEnum.GoingDown;
+
+            while (ShouldContinueMovingDown())
+            {
+                await MoveToNextFloorAsync(MoveTypeEnum.Down);
+                var commandsToGoToCurrentFloor = new List<Command>()
+                {
+                    new Command(CurrentFloor, CommandTypeEnum.Internal),
+                    new Command(CurrentFloor, CommandTypeEnum.Down)
+                };
+
+                if (ShouldMakeShortStop(commandsToGoToCurrentFloor))
+                {
+                    await Task.Delay(MILLISECONDS_TO_PERFORM_SHORT_STOP_AT_FLOOR);
+                }
+
+                RemoveCommands(commandsToGoToCurrentFloor);
+            }
+
+            Stop();
+        }
+
+        private bool ShouldContinueMovingDown()
+        {
+            return commands.Any(c => c.Floor < CurrentFloor && c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Down);
         }
     }
 }
