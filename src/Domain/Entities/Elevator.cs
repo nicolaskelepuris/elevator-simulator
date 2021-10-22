@@ -10,7 +10,7 @@ namespace Domain.Entities
     public class Elevator
     {
         public const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 1000;
-        public const int MILLISECONDS_TO_VISIT_AT_FLOOR = 500;
+        public const int MILLISECONDS_TO_VISIT_FLOOR = 500;
         private Queue<Command> commands;
         private FloorEnum currentFloor;
         public FloorEnum CurrentFloor
@@ -153,7 +153,7 @@ namespace Domain.Entities
 
         private bool ShouldContinueMovingUp()
         {
-            return commands.Any(c => c.Floor > CurrentFloor && c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Up);
+            return commands.Any(c => c.Floor > CurrentFloor && (c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Up));
         }
 
         private async Task MoveToNextFloorAsync(MoveTypeEnum moveType)
@@ -178,7 +178,7 @@ namespace Domain.Entities
         private async Task VisitCurrentFloorAsync()
         {
             visitedFloors.Add((int)CurrentFloor);
-            await Task.Delay(MILLISECONDS_TO_VISIT_AT_FLOOR);
+            await Task.Delay(MILLISECONDS_TO_VISIT_FLOOR);
         }
 
         private void RemoveCommands(IEnumerable<Command> commandsToRemove)
@@ -219,7 +219,7 @@ namespace Domain.Entities
 
         private bool ShouldContinueMovingDown()
         {
-            return commands.Any(c => c.Floor < CurrentFloor && c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Down);
+            return commands.Any(c => c.Floor < CurrentFloor && (c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Down));
         }
 
         public void AddCurrentFloorChangedEventSubscriber(CurrentFloorChangedEventHandler handler)
