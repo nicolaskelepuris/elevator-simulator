@@ -93,19 +93,7 @@ namespace Domain.Entities
 
             while (ShouldContinueMovingUp())
             {
-                await MoveToNextFloorAsync(MoveTypeEnum.Up);
-                var commandsToGoToCurrentFloor = new List<Command>()
-                {
-                    new Command(CurrentFloor, CommandTypeEnum.Internal),
-                    new Command(CurrentFloor, CommandTypeEnum.Up)
-                };
-
-                if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
-                {
-                    await VisitCurrentFloorAsync();
-                }
-
-                RemoveCommands(commandsToGoToCurrentFloor);
+                await MoveToNextFloorAboveAsync();
             }
 
             Stop();
@@ -114,6 +102,24 @@ namespace Domain.Entities
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
             }
+        }
+
+        private async Task MoveToNextFloorAboveAsync()
+        {
+            await MoveToNextFloorAsync(MoveTypeEnum.Up);
+
+            var commandsToGoToCurrentFloor = new List<Command>()
+            {
+                new Command(CurrentFloor, CommandTypeEnum.Internal),
+                new Command(CurrentFloor, CommandTypeEnum.Up)
+            };
+
+            if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
+            {
+                await VisitCurrentFloorAsync();
+            }
+
+            RemoveCommands(commandsToGoToCurrentFloor);
         }
 
         private bool ShouldContinueMovingUp()
@@ -169,19 +175,7 @@ namespace Domain.Entities
 
             while (ShouldContinueMovingDown())
             {
-                await MoveToNextFloorAsync(MoveTypeEnum.Down);
-                var commandsToGoToCurrentFloor = new List<Command>()
-                {
-                    new Command(CurrentFloor, CommandTypeEnum.Internal),
-                    new Command(CurrentFloor, CommandTypeEnum.Down)
-                };
-
-                if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
-                {
-                    await VisitCurrentFloorAsync();
-                }
-
-                RemoveCommands(commandsToGoToCurrentFloor);
+                await MoveToNextFloorBelowAsync();
             }
 
             Stop();
@@ -190,6 +184,23 @@ namespace Domain.Entities
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
             }
+        }
+
+        private async Task MoveToNextFloorBelowAsync()
+        {
+            await MoveToNextFloorAsync(MoveTypeEnum.Down);
+            var commandsToGoToCurrentFloor = new List<Command>()
+            {
+                new Command(CurrentFloor, CommandTypeEnum.Internal),
+                new Command(CurrentFloor, CommandTypeEnum.Down)
+            };
+
+            if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
+            {
+                await VisitCurrentFloorAsync();
+            }
+
+            RemoveCommands(commandsToGoToCurrentFloor);
         }
 
         private bool ShouldContinueMovingDown()
