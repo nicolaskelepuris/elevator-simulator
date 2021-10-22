@@ -25,6 +25,19 @@ namespace tests
         }
 
         [Fact]
+        public void ShouldNotAddCommandToCurrentFloor()
+        {
+            var floor = FloorEnum.Ground;
+            var type = CommandTypeEnum.Internal;
+            var command = new Command(floor, type);
+            var elevator = new Elevator();
+        
+            elevator.AddCommand(command);
+
+            elevator.CommandQueueContains(new Command(floor, type)).Should().BeFalse();
+        }
+
+        [Fact]
         public void ShouldStartStoppedAtGroundFloor()
         {
             var elevator = new Elevator();

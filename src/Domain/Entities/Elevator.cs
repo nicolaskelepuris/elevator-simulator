@@ -34,6 +34,8 @@ namespace Domain.Entities
 
         public void AddCommand(Command command)
         {
+            if (command.Floor == CurrentFloor) return;
+            
             commands.Enqueue(command);
 
             var nextCommand = commands.Peek();
