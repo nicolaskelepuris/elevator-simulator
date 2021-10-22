@@ -41,10 +41,13 @@ namespace tests
             await MoveToFloorAsync(elevator, floor);
 
             elevator.CurrentFloor.Should().Be(FloorEnum.Two);
+            var visitedFloors = elevator.VisitedFloors;
+            visitedFloors.Should().HaveCount(1);
+            visitedFloors.Should().ContainInOrder(new List<int>() { 2 });
         }
 
         [Fact]
-        public async Task ShouldMoveDownAfterWaitMoveUp()
+        public async Task ShouldMoveDownAfterMovedUp()
         {
             var elevator = new Elevator();
             await MoveToFloorAsync(elevator, FloorEnum.Two);
@@ -53,6 +56,9 @@ namespace tests
             await MoveToFloorAsync(elevator, floor);
 
             elevator.CurrentFloor.Should().Be(floor);
+            var visitedFloors = elevator.VisitedFloors;
+            visitedFloors.Should().HaveCount(2);
+            visitedFloors.Should().ContainInOrder(new List<int>() { 2, 1 });
         }
 
         private async Task MoveToFloorAsync(Elevator elevator, FloorEnum floor){
@@ -79,6 +85,9 @@ namespace tests
             await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 3);
 
             elevator.CurrentFloor.Should().Be(finalFloor);
+            var visitedFloors = elevator.VisitedFloors;
+            visitedFloors.Should().HaveCount(2);
+            visitedFloors.Should().ContainInOrder(new List<int>() { 2, 1 });
         }
 
         [Fact]
@@ -97,6 +106,9 @@ namespace tests
             await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 5);
 
             elevator.CurrentFloor.Should().Be(finalFloor);
+            var visitedFloors = elevator.VisitedFloors;
+            visitedFloors.Should().HaveCount(3);
+            visitedFloors.Should().ContainInOrder(new List<int>() { 2, 1, 4 });
         }
 
         [Fact]
@@ -119,6 +131,24 @@ namespace tests
             var visitedFloors = elevator.VisitedFloors;
             visitedFloors.Should().HaveCount(4);
             visitedFloors.Should().ContainInOrder(new List<int>() { 1, 2, 3, 4 });
+        }
+
+        [Fact]
+        public async Task ShouldMoveUpWhenReceiveExternalDownCommandFromUpperFloor()
+        {
+            var commandType = CommandTypeEnum.Down;
+            var floor = FloorEnum.Four;
+            var command = new Command(FloorEnum.Four, commandType);
+            var elevator = new Elevator();
+
+            elevator.AddCommand(command);
+
+            await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 4);
+
+            var visitedFloors = elevator.VisitedFloors;
+            visitedFloors.Should().HaveCount(1);
+            visitedFloors.Should().ContainInOrder(new List<int>() { 4 });
+            elevator.CurrentFloor.Should().Be(floor);
         }
     }
 }
