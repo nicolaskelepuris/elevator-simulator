@@ -12,12 +12,24 @@ namespace Domain.Entities
         public const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 1000;
         public const int MILLISECONDS_TO_VISIT_AT_FLOOR = 500;
         private Queue<Command> commands;
-        public FloorEnum CurrentFloor { get; private set; }
+        private FloorEnum currentFloor;
+        public FloorEnum CurrentFloor
+        {
+            get { return currentFloor; }
+            set
+            {
+                currentFloor = value;
+                CurrentFloorChangedEvent?.Invoke(this, new CurrentFloorChangedEventArgs(currentFloor));
+            }
+        }
         public ElevatorStatusEnum Status { get; private set; }
         private delegate Task MoveElevatorEventHandler(object sender, MoveElevatorEventArgs e);
         private event MoveElevatorEventHandler MoveElevatorEvent;
         private List<int> visitedFloors;
         public List<int> VisitedFloors { get => new List<int>(visitedFloors ?? Enumerable.Empty<int>()); }
+
+        public delegate void CurrentFloorChangedEventHandler(object sender, CurrentFloorChangedEventArgs e);
+        private event CurrentFloorChangedEventHandler CurrentFloorChangedEvent;
 
         public Elevator()
         {
@@ -35,7 +47,7 @@ namespace Domain.Entities
         public void AddCommand(Command command)
         {
             if (command.Floor == CurrentFloor) return;
-            
+
             commands.Enqueue(command);
 
             var nextCommand = commands.Peek();
@@ -208,6 +220,11 @@ namespace Domain.Entities
         private bool ShouldContinueMovingDown()
         {
             return commands.Any(c => c.Floor < CurrentFloor && c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Down);
+        }
+
+        public void AddCurrentFloorChangedEventSubscriber(CurrentFloorChangedEventHandler handler)
+        {
+            CurrentFloorChangedEvent += handler;
         }
     }
 }
