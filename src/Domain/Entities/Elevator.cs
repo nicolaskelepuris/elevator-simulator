@@ -10,7 +10,7 @@ namespace Domain.Entities
     public class Elevator
     {
         public const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 1000;
-        public const int MILLISECONDS_TO_PERFORM_SHORT_STOP_AT_FLOOR = 500;
+        public const int MILLISECONDS_TO_VISIT_AT_FLOOR = 500;
         private Queue<Command> commands;
         public FloorEnum CurrentFloor { get; private set; }
         public ElevatorStatusEnum Status { get; private set; }
@@ -63,12 +63,10 @@ namespace Domain.Entities
             switch (e.MoveType)
             {
                 case MoveTypeEnum.Up:
-                    MoveElevatorEvent -= MoveDown;
-                    MoveElevatorEvent += MoveUp;
+                    SubscribeMoveUpEventHandler();
                     break;
                 case MoveTypeEnum.Down:
-                    MoveElevatorEvent -= MoveUp;
-                    MoveElevatorEvent += MoveDown;
+                    SubscribeMoveDownEventHandler();
                     break;
                 default:
                     return;
@@ -77,7 +75,19 @@ namespace Domain.Entities
             MoveElevatorEvent.Invoke(this, e);
         }
 
-        private async Task MoveUp(object sender, MoveElevatorEventArgs e)
+        private void SubscribeMoveUpEventHandler()
+        {
+            MoveElevatorEvent -= MoveDownEventHandler;
+            MoveElevatorEvent += MoveUpEventHandler;
+        }
+
+        private void SubscribeMoveDownEventHandler()
+        {
+            MoveElevatorEvent -= MoveUpEventHandler;
+            MoveElevatorEvent += MoveDownEventHandler;
+        }
+
+        private async Task MoveUpEventHandler(object sender, MoveElevatorEventArgs e)
         {
             Status = ElevatorStatusEnum.GoingUp;
 
@@ -90,9 +100,9 @@ namespace Domain.Entities
                     new Command(CurrentFloor, CommandTypeEnum.Up)
                 };
 
-                if (ShouldMakeShortStop(commandsToGoToCurrentFloor))
+                if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
                 {
-                    await MakeShortStopAtCurrentFloorAsync();
+                    await VisitCurrentFloorAsync();
                 }
 
                 RemoveCommands(commandsToGoToCurrentFloor);
@@ -125,15 +135,15 @@ namespace Domain.Entities
             }
         }
 
-        private bool ShouldMakeShortStop(IEnumerable<Command> commandsToGoToCurrentFloor)
+        private bool ShouldVisitCurrentFloor(IEnumerable<Command> commandsToGoToCurrentFloor)
         {
             return commandsToGoToCurrentFloor.Any(c => CommandQueueContains(c));
         }
 
-        private async Task MakeShortStopAtCurrentFloorAsync()
+        private async Task VisitCurrentFloorAsync()
         {
             visitedFloors.Add((int)CurrentFloor);
-            await Task.Delay(MILLISECONDS_TO_PERFORM_SHORT_STOP_AT_FLOOR);
+            await Task.Delay(MILLISECONDS_TO_VISIT_AT_FLOOR);
         }
 
         private void RemoveCommands(IEnumerable<Command> commandsToRemove)
@@ -153,7 +163,7 @@ namespace Domain.Entities
             return commands.Count != 0;
         }
 
-        private async Task MoveDown(object sender, MoveElevatorEventArgs e)
+        private async Task MoveDownEventHandler(object sender, MoveElevatorEventArgs e)
         {
             Status = ElevatorStatusEnum.GoingDown;
 
@@ -166,9 +176,9 @@ namespace Domain.Entities
                     new Command(CurrentFloor, CommandTypeEnum.Down)
                 };
 
-                if (ShouldMakeShortStop(commandsToGoToCurrentFloor))
+                if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
                 {
-                    await MakeShortStopAtCurrentFloorAsync();
+                    await VisitCurrentFloorAsync();
                 }
 
                 RemoveCommands(commandsToGoToCurrentFloor);
