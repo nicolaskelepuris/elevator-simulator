@@ -22,7 +22,8 @@ namespace Presentation
             elevator.AddCurrentFloorChangedEventSubscriber(UpdateCurrentFloorTextBox);
         }
 
-        private void UpdateCurrentFloorTextBox(object sender, CurrentFloorChangedEventArgs e) {
+        private void UpdateCurrentFloorTextBox(object sender, CurrentFloorChangedEventArgs e)
+        {
             var floor = (int)e.Floor;
             this.currentFloorBox.Text = floor.ToString();
         }
@@ -56,6 +57,58 @@ namespace Presentation
         private void inner4_Click(object sender, EventArgs e)
         {
             AddInternalCommand(FloorEnum.Four);
+        }
+
+        private void AddExternalUpCommand(FloorEnum floor)
+        {
+            var command = new Command(floor, CommandTypeEnum.Up);
+            elevator.AddCommand(command);
+        }
+
+        private void AddExternalDownCommand(FloorEnum floor)
+        {
+            var command = new Command(floor, CommandTypeEnum.Down);
+            elevator.AddCommand(command);
+        }
+
+        private void externalUpGround_Click(object sender, EventArgs e)
+        {
+            AddExternalUpCommand(FloorEnum.Ground);
+        }
+
+        private void externalUp1_Click(object sender, EventArgs e)
+        {
+            AddExternalUpCommand(FloorEnum.One);
+        }
+
+        private void externalDown1_Click(object sender, EventArgs e)
+        {
+            AddExternalDownCommand(FloorEnum.One);
+        }
+
+        private void externalUp2_Click(object sender, EventArgs e)
+        {
+            AddExternalUpCommand(FloorEnum.Two);
+        }
+
+        private void externalDown2_Click(object sender, EventArgs e)
+        {
+            AddExternalDownCommand(FloorEnum.Two);
+        }
+
+        private void externalUp3_Click(object sender, EventArgs e)
+        {
+            AddExternalUpCommand(FloorEnum.Three);
+        }
+
+        private void externalDown3_Click(object sender, EventArgs e)
+        {
+            AddExternalDownCommand(FloorEnum.Three);
+        }
+
+        private void externalDown4_Click(object sender, EventArgs e)
+        {
+            AddExternalDownCommand(FloorEnum.Four);
         }
     }
 }
