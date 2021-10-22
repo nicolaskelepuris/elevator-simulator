@@ -93,7 +93,9 @@ namespace Domain.Entities
 
             while (ShouldContinueMovingUp())
             {
-                await MoveToNextFloorAboveAsync();
+                await MoveToNextFloorAsync(MoveTypeEnum.Up);
+
+                await VisitCurrentFloorAndRemoveFromCommands();
             }
 
             Stop();
@@ -102,13 +104,6 @@ namespace Domain.Entities
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
             }
-        }
-
-        private async Task MoveToNextFloorAboveAsync()
-        {
-            await MoveToNextFloorAsync(MoveTypeEnum.Up);
-
-            await VisitCurrentFloorAndRemoveFromCommands();
         }
 
         private async Task VisitCurrentFloorAndRemoveFromCommands()
@@ -195,7 +190,9 @@ namespace Domain.Entities
 
             while (ShouldContinueMovingDown())
             {
-                await MoveToNextFloorBelowAsync();
+                await MoveToNextFloorAsync(MoveTypeEnum.Down);
+
+                await VisitCurrentFloorAndRemoveFromCommands();
             }
 
             Stop();
@@ -204,13 +201,6 @@ namespace Domain.Entities
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
             }
-        }
-
-        private async Task MoveToNextFloorBelowAsync()
-        {
-            await MoveToNextFloorAsync(MoveTypeEnum.Down);
-
-            await VisitCurrentFloorAndRemoveFromCommands();
         }
 
         private bool ShouldContinueMovingDown()
