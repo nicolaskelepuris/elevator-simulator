@@ -108,11 +108,12 @@ namespace Domain.Entities
         {
             await MoveToNextFloorAsync(MoveTypeEnum.Up);
 
-            var commandsToGoToCurrentFloor = new List<Command>()
-            {
-                new Command(CurrentFloor, CommandTypeEnum.Internal),
-                new Command(CurrentFloor, CommandTypeEnum.Up)
-            };
+            await VisitCurrentFloorAndRemoveFromCommands();
+        }
+
+        private async Task VisitCurrentFloorAndRemoveFromCommands()
+        {
+            var commandsToGoToCurrentFloor = GetCommandsToGoToCurrentFloor();
 
             if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
             {
@@ -120,6 +121,25 @@ namespace Domain.Entities
             }
 
             RemoveCommands(commandsToGoToCurrentFloor);
+        }
+
+        private List<Command> GetCommandsToGoToCurrentFloor()
+        {
+            var commandsCurrentFloor = new List<Command>()
+            {
+                new Command(CurrentFloor, CommandTypeEnum.Internal)
+            };
+
+            if (Status == ElevatorStatusEnum.GoingUp)
+            {
+                commandsCurrentFloor.Add(new Command(CurrentFloor, CommandTypeEnum.Up));
+            }
+            else if (Status == ElevatorStatusEnum.GoingDown)
+            {
+                commandsCurrentFloor.Add(new Command(CurrentFloor, CommandTypeEnum.Down));
+            }
+
+            return commandsCurrentFloor;
         }
 
         private bool ShouldContinueMovingUp()
@@ -189,18 +209,8 @@ namespace Domain.Entities
         private async Task MoveToNextFloorBelowAsync()
         {
             await MoveToNextFloorAsync(MoveTypeEnum.Down);
-            var commandsToGoToCurrentFloor = new List<Command>()
-            {
-                new Command(CurrentFloor, CommandTypeEnum.Internal),
-                new Command(CurrentFloor, CommandTypeEnum.Down)
-            };
 
-            if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
-            {
-                await VisitCurrentFloorAsync();
-            }
-
-            RemoveCommands(commandsToGoToCurrentFloor);
+            await VisitCurrentFloorAndRemoveFromCommands();
         }
 
         private bool ShouldContinueMovingDown()
