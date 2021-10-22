@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.Enums;
 using Domain.Events;
+using Domain.Interfaces;
 
 namespace Domain.Entities
 {
@@ -16,14 +17,14 @@ namespace Domain.Entities
         public ElevatorStatusEnum Status { get; private set; }
         private delegate Task MoveElevatorEventHandler(object sender, MoveElevatorEventArgs e);
         private event MoveElevatorEventHandler MoveElevatorEvent;
-        private List<int> visitedFloors;
-        public List<int> VisitedFloors { get => new List<int>(visitedFloors ?? Enumerable.Empty<int>()); }
 
-        public Elevator()
+        private readonly IElevatorLogger _logger;
+
+        public Elevator(IElevatorLogger logger)
         {
             commands = new Queue<Command>();
             CurrentFloor = FloorEnum.Ground;
-            visitedFloors = new List<int>();
+            _logger = logger;
             Stop();
         }
 
@@ -34,6 +35,11 @@ namespace Domain.Entities
 
         public void AddCommand(Command command)
         {
+            if (command.Type == CommandTypeEnum.Internal)
+            {
+                _logger.LogInternalCommand(command);
+            }
+
             commands.Enqueue(command);
 
             var nextCommand = commands.Peek();
@@ -163,7 +169,7 @@ namespace Domain.Entities
 
         private async Task VisitCurrentFloorAsync()
         {
-            visitedFloors.Add((int)CurrentFloor);
+            _logger.LogVisitedFloor(CurrentFloor);
             await Task.Delay(MILLISECONDS_TO_VISIT_AT_FLOOR);
         }
 

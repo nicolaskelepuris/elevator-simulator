@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Services;
 using FluentAssertions;
 using Xunit;
 
@@ -17,7 +18,7 @@ namespace tests
             var floor = FloorEnum.Two;
             var type = CommandTypeEnum.Internal;
             var command = new Command(floor, type);
-            var elevator = new Elevator();
+            var elevator = new Elevator(new ElevatorLogger());
         
             elevator.AddCommand(command);
 
@@ -27,7 +28,7 @@ namespace tests
         [Fact]
         public void ShouldStartStoppedAtGroundFloor()
         {
-            var elevator = new Elevator();
+            var elevator = new Elevator(new ElevatorLogger());
 
             elevator.CurrentFloor.Should().Be(FloorEnum.Ground);
             elevator.Status.Should().Be(ElevatorStatusEnum.Stopped);
@@ -36,12 +37,13 @@ namespace tests
         [Fact]
         public async Task ShouldMoveUpToFloorFromStoppedState()
         {
-            var elevator = new Elevator();
+            var logger = new ElevatorLogger();
+            var elevator = new Elevator(logger);
             var floor = FloorEnum.Two;
             await MoveToFloorAsync(elevator, floor);
 
             elevator.CurrentFloor.Should().Be(FloorEnum.Two);
-            var visitedFloors = elevator.VisitedFloors;
+            var visitedFloors = logger.VisitedFloors;
             visitedFloors.Should().HaveCount(1);
             visitedFloors.Should().ContainInOrder(new List<int>() { 2 });
         }
@@ -49,14 +51,15 @@ namespace tests
         [Fact]
         public async Task ShouldMoveDownAfterMovedUp()
         {
-            var elevator = new Elevator();
+            var logger = new ElevatorLogger();
+            var elevator = new Elevator(logger);
             await MoveToFloorAsync(elevator, FloorEnum.Two);
 
             var floor = FloorEnum.One;
             await MoveToFloorAsync(elevator, floor);
 
             elevator.CurrentFloor.Should().Be(floor);
-            var visitedFloors = elevator.VisitedFloors;
+            var visitedFloors = logger.VisitedFloors;
             visitedFloors.Should().HaveCount(2);
             visitedFloors.Should().ContainInOrder(new List<int>() { 2, 1 });
         }
@@ -77,7 +80,8 @@ namespace tests
             var internalCommand = new Command(FloorEnum.Two, internalCommandType);
             var finalFloor = FloorEnum.One;
             var downCommand = new Command(finalFloor, CommandTypeEnum.Down);
-            var elevator = new Elevator();
+            var logger = new ElevatorLogger();
+            var elevator = new Elevator(logger);
 
             elevator.AddCommand(internalCommand);
             elevator.AddCommand(downCommand);
@@ -85,7 +89,7 @@ namespace tests
             await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 3);
 
             elevator.CurrentFloor.Should().Be(finalFloor);
-            var visitedFloors = elevator.VisitedFloors;
+            var visitedFloors = logger.VisitedFloors;
             visitedFloors.Should().HaveCount(2);
             visitedFloors.Should().ContainInOrder(new List<int>() { 2, 1 });
         }
@@ -93,7 +97,8 @@ namespace tests
         [Fact]
         public async Task ShouldMoveUpWaitAndDownAndUp()
         {
-            var elevator = new Elevator();
+            var logger = new ElevatorLogger();
+            var elevator = new Elevator(logger);
             var floor = FloorEnum.Two;
             await MoveToFloorAsync(elevator, floor);
             var downCommand = new Command(FloorEnum.One, CommandTypeEnum.Down);
@@ -106,7 +111,7 @@ namespace tests
             await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 5);
 
             elevator.CurrentFloor.Should().Be(finalFloor);
-            var visitedFloors = elevator.VisitedFloors;
+            var visitedFloors = logger.VisitedFloors;
             visitedFloors.Should().HaveCount(3);
             visitedFloors.Should().ContainInOrder(new List<int>() { 2, 1, 4 });
         }
@@ -119,7 +124,8 @@ namespace tests
             var secondCommand = new Command(FloorEnum.Three, commandType);
             var thirdCommand = new Command(FloorEnum.One, commandType);
             var fourthCommand = new Command(FloorEnum.Two, commandType);
-            var elevator = new Elevator();
+            var logger = new ElevatorLogger();
+            var elevator = new Elevator(logger);
 
             elevator.AddCommand(firstCommand);
             elevator.AddCommand(secondCommand);
@@ -128,7 +134,7 @@ namespace tests
 
             await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 5);
 
-            var visitedFloors = elevator.VisitedFloors;
+            var visitedFloors = logger.VisitedFloors;
             visitedFloors.Should().HaveCount(4);
             visitedFloors.Should().ContainInOrder(new List<int>() { 1, 2, 3, 4 });
         }
@@ -139,13 +145,14 @@ namespace tests
             var commandType = CommandTypeEnum.Down;
             var floor = FloorEnum.Four;
             var command = new Command(FloorEnum.Four, commandType);
-            var elevator = new Elevator();
+            var logger = new ElevatorLogger();
+            var elevator = new Elevator(logger);
 
             elevator.AddCommand(command);
 
             await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 4);
 
-            var visitedFloors = elevator.VisitedFloors;
+            var visitedFloors = logger.VisitedFloors;
             visitedFloors.Should().HaveCount(1);
             visitedFloors.Should().ContainInOrder(new List<int>() { 4 });
             elevator.CurrentFloor.Should().Be(floor);
