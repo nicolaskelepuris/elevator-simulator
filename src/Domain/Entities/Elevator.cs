@@ -9,8 +9,8 @@ namespace Domain.Entities
 {
     public class Elevator
     {
-        public const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 1000;
-        public const int MILLISECONDS_TO_VISIT_FLOOR = 500;
+        public const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 3000;
+        public const int MILLISECONDS_TO_VISIT_FLOOR = 1000;
         private Queue<Command> commands;
         private FloorEnum currentFloor;
         public FloorEnum CurrentFloor

@@ -9,7 +9,7 @@ namespace tests
 {
     public class ElevatorTests
     {
-        private const int MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR = 2000;
+        private const int MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR = 4000;
 
         [Fact]
         public void ShouldAddCommand()
