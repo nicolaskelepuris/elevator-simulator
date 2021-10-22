@@ -28,19 +28,18 @@ namespace Domain.Entities
         {
             commands.Enqueue(command);
 
-            switch (Status)
+            var nextCommand = commands.Peek();
+
+            if (ShouldMoveUp(nextCommand))
             {
-                case ElevatorStatusEnum.Stopped:
-                    MoveElevatorEvent += MoveUp;
-                    OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
-                    break;
-                case ElevatorStatusEnum.GoingUp:
-                    return;
-                case ElevatorStatusEnum.GoingDown:
-                    return;
-                default:
-                    return;
+                MoveElevatorEvent += MoveUp;
+                OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
             }
+        }
+
+        private bool ShouldMoveUp(Command nextCommand)
+        {
+            return nextCommand.Floor > CurrentFloor && Status == ElevatorStatusEnum.Stopped;
         }
 
         public bool CommandQueueContains(Command command)
