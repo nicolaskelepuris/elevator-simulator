@@ -97,6 +97,11 @@ namespace Domain.Entities
             }
 
             Stop();
+
+            if (HasNextCommand() && ShouldMoveDown(commands.Peek()))
+            {
+                OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
+            }
         }
 
         private bool ShouldContinueMovingUp()
@@ -133,6 +138,11 @@ namespace Domain.Entities
         private bool ShouldMoveDown(Command nextCommand)
         {
             return nextCommand.Floor < CurrentFloor && Status == ElevatorStatusEnum.Stopped;
+        }
+
+        private bool HasNextCommand()
+        {
+            return commands.Count != 0;
         }
 
         private async Task MoveDown(object sender, MoveElevatorEventArgs e)

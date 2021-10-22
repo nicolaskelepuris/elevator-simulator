@@ -8,7 +8,7 @@ namespace tests
 {
     public class ElevatorTests
     {
-        private const int MILLISECONDS_FOR_SAFETY_TEST = 1000;
+        private const int MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR = 2000;
 
         [Fact]
         public void ShouldAddCommand()
@@ -43,7 +43,7 @@ namespace tests
         }
 
         [Fact]
-        public async Task ShouldMoveUpStopAndMoveDownFromStoppedState()
+        public async Task ShouldMoveDownAfterWaitMoveUp()
         {
             var elevator = new Elevator();
             await MoveToFloorAsync(elevator, FloorEnum.Two);
@@ -59,8 +59,25 @@ namespace tests
             var command = new Command(floor, type);
 
             elevator.AddCommand(command);
-            var timeToMove = Elevator.MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS * (int) floor;
-            await Task.Delay(timeToMove + MILLISECONDS_FOR_SAFETY_TEST);
+            var timeToWait = MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * (int) floor;
+            await Task.Delay(timeToWait);
+        }
+
+        [Fact]
+        public async Task ShouldMoveUpAndDown()
+        {
+            var internalCommandType = CommandTypeEnum.Internal;
+            var internalCommand = new Command(FloorEnum.Two, internalCommandType);
+            var finalFloor = FloorEnum.One;
+            var downCommand = new Command(finalFloor, CommandTypeEnum.Down);
+            var elevator = new Elevator();
+
+            elevator.AddCommand(internalCommand);
+            elevator.AddCommand(downCommand);
+
+            await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 3);
+
+            elevator.CurrentFloor.Should().Be(finalFloor);
         }
     }
 }
