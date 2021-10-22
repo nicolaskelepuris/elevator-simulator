@@ -10,8 +10,6 @@ namespace Domain.Entities
 {
     public class Elevator
     {
-        public const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 1000;
-        public const int MILLISECONDS_TO_VISIT_AT_FLOOR = 500;
         private Queue<Command> commands;
         public FloorEnum CurrentFloor { get; private set; }
         public ElevatorStatusEnum Status { get; private set; }
@@ -19,13 +17,15 @@ namespace Domain.Entities
         private event MoveElevatorEventHandler MoveElevatorEvent;
 
         private readonly IElevatorLogger _logger;
+        private readonly IElevatorDelaySimulator _delaySimulator;
 
-        public Elevator(IElevatorLogger logger)
+        public Elevator(IElevatorLogger logger, IElevatorDelaySimulator delaySimulator)
         {
             commands = new Queue<Command>();
             CurrentFloor = FloorEnum.Ground;
-            _logger = logger;
             Stop();
+            _logger = logger;
+            _delaySimulator = delaySimulator;
         }
 
         private void Stop()
@@ -150,7 +150,7 @@ namespace Domain.Entities
 
         private async Task MoveToNextFloorAsync(MoveTypeEnum moveType)
         {
-            await Task.Delay(MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS);
+            await _delaySimulator.SimulateMoveToNextFloor();
 
             if (moveType == MoveTypeEnum.Up)
             {
@@ -170,7 +170,7 @@ namespace Domain.Entities
         private async Task VisitCurrentFloorAsync()
         {
             _logger.LogVisitedFloor(CurrentFloor);
-            await Task.Delay(MILLISECONDS_TO_VISIT_AT_FLOOR);
+            await _delaySimulator.SimulateFloorVisit();
         }
 
         private void RemoveCommands(IEnumerable<Command> commandsToRemove)
