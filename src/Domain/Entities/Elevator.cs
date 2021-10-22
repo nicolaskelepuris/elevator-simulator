@@ -139,11 +139,12 @@ namespace Domain.Entities
                 new Command(CurrentFloor, CommandTypeEnum.Internal)
             };
 
-            if (Status == ElevatorStatusEnum.GoingUp)
+            if (IsGoingUp || !commands.Any(c => c.Floor < CurrentFloor))
             {
                 commandsCurrentFloor.Add(new Command(CurrentFloor, CommandTypeEnum.Up));
             }
-            else if (Status == ElevatorStatusEnum.GoingDown)
+
+            if (IsGoingDown || !commands.Any(c => c.Floor > CurrentFloor))
             {
                 commandsCurrentFloor.Add(new Command(CurrentFloor, CommandTypeEnum.Down));
             }
@@ -151,9 +152,12 @@ namespace Domain.Entities
             return commandsCurrentFloor;
         }
 
+        private bool IsGoingUp => Status == ElevatorStatusEnum.GoingUp;
+        private bool IsGoingDown => Status == ElevatorStatusEnum.GoingDown;
+
         private bool ShouldContinueMovingUp()
         {
-            return commands.Any(c => c.Floor > CurrentFloor && (c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Up));
+            return commands.Any(c => c.Floor > CurrentFloor);
         }
 
         private async Task MoveToNextFloorAsync(MoveTypeEnum moveType)
