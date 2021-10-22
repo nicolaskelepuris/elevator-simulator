@@ -1,4 +1,4 @@
-﻿namespace src.Presentation
+﻿namespace Presentation
 {
     partial class Form1
     {

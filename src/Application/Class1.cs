@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace src.Application
+namespace Application
 {
     public class Class1
     {
