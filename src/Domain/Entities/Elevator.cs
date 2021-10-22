@@ -167,6 +167,11 @@ namespace Domain.Entities
             }
 
             Stop();
+
+            if (HasNextCommand() && ShouldMoveUp(commands.Peek()))
+            {
+                OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
+            }
         }
 
         private bool ShouldContinueMovingDown()

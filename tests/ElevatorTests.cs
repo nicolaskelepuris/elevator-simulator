@@ -79,5 +79,23 @@ namespace tests
 
             elevator.CurrentFloor.Should().Be(finalFloor);
         }
+
+        [Fact]
+        public async Task ShouldMoveUpWaitAndDownAndUp()
+        {
+            var elevator = new Elevator();
+            var floor = FloorEnum.Two;
+            await MoveToFloorAsync(elevator, floor);
+            var downCommand = new Command(FloorEnum.One, CommandTypeEnum.Down);
+            var finalFloor = FloorEnum.Four;
+            var upCommand = new Command(finalFloor, CommandTypeEnum.Up);
+
+            elevator.AddCommand(downCommand);
+            elevator.AddCommand(upCommand);
+
+            await Task.Delay(MILLISECONDS_TO_AWAIT_FOR_EACH_FLOOR * 5);
+
+            elevator.CurrentFloor.Should().Be(finalFloor);
+        }
     }
 }
