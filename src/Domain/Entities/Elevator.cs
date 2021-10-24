@@ -28,15 +28,15 @@ namespace Domain.Entities
         public delegate void CurrentFloorChangedEventHandler(object sender, CurrentFloorChangedEventArgs e);
         private event CurrentFloorChangedEventHandler CurrentFloorChangedEvent;
         private readonly IElevatorLogger _logger;
-        private readonly IElevatorDelaySimulator _delaySimulator;
+        private readonly IElevatorSimulator _simulator;
 
-        public Elevator(IElevatorLogger logger, IElevatorDelaySimulator delaySimulator)
+        public Elevator(IElevatorLogger logger, IElevatorSimulator simulator)
         {
             commands = new Queue<Command>();
             CurrentFloor = FloorEnum.Ground;
             Stop();
             _logger = logger;
-            _delaySimulator = delaySimulator;
+            _simulator = simulator;
         }
 
         private void Stop()
@@ -167,7 +167,7 @@ namespace Domain.Entities
 
         private async Task MoveToNextFloorAsync(MoveTypeEnum moveType)
         {
-            await _delaySimulator.SimulateMoveToNextFloor();
+            await _simulator.SimulateMoveToNextFloor();
 
             if (moveType == MoveTypeEnum.Up)
             {
@@ -187,7 +187,7 @@ namespace Domain.Entities
         private async Task VisitCurrentFloorAsync()
         {
             _logger.LogVisitedFloor(CurrentFloor);
-            await _delaySimulator.SimulateFloorVisit();
+            await _simulator.SimulateFloorVisit();
         }
 
         private void RemoveCommands(IEnumerable<Command> commandsToRemove)

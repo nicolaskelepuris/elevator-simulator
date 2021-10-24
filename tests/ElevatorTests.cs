@@ -14,13 +14,13 @@ namespace tests
     {
         private const int MILLISECONDS_TO_WAIT_FOR_EACH_FLOOR = 100;
 
-        private readonly IElevatorDelaySimulator _delaySimulator;
+        private readonly IElevatorSimulator _simulator;
         public ElevatorTests()
         {
-            var mock = new Mock<IElevatorDelaySimulator>();
+            var mock = new Mock<IElevatorSimulator>();
             mock.Setup(p => p.SimulateMoveToNextFloor()).Returns(Task.Delay(50));
             mock.Setup(p => p.SimulateFloorVisit()).Returns(Task.Delay(50));
-            _delaySimulator = mock.Object;
+            _simulator = mock.Object;
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace tests
             var floor = FloorEnum.Two;
             var type = CommandTypeEnum.Internal;
             var command = new Command(floor, type);
-            var elevator = new Elevator(new ElevatorLogger(), _delaySimulator);
+            var elevator = new Elevator(new ElevatorLogger(), _simulator);
         
             elevator.AddCommand(command);
 
@@ -42,7 +42,7 @@ namespace tests
             var floor = FloorEnum.Ground;
             var type = CommandTypeEnum.Internal;
             var command = new Command(floor, type);
-            var elevator = new Elevator(new ElevatorLogger(), _delaySimulator);
+            var elevator = new Elevator(new ElevatorLogger(), _simulator);
         
             elevator.AddCommand(command);
 
@@ -52,7 +52,7 @@ namespace tests
         [Fact]
         public void ShouldStartStoppedAtGroundFloor()
         {
-            var elevator = new Elevator(new ElevatorLogger(), _delaySimulator);
+            var elevator = new Elevator(new ElevatorLogger(), _simulator);
 
             elevator.CurrentFloor.Should().Be(FloorEnum.Ground);
             elevator.Status.Should().Be(ElevatorStatusEnum.Stopped);
@@ -62,7 +62,7 @@ namespace tests
         public async Task ShouldMoveUpToFloorFromStoppedState()
         {
             var logger = new ElevatorLogger();
-            var elevator = new Elevator(logger, _delaySimulator);
+            var elevator = new Elevator(logger, _simulator);
             var floor = FloorEnum.Two;
             await MoveToFloorAsync(elevator, floor);
 
@@ -76,7 +76,7 @@ namespace tests
         public async Task ShouldMoveDownAfterMovedUp()
         {
             var logger = new ElevatorLogger();
-            var elevator = new Elevator(logger, _delaySimulator);
+            var elevator = new Elevator(logger, _simulator);
             await MoveToFloorAsync(elevator, FloorEnum.Two);
 
             var floor = FloorEnum.One;
@@ -105,7 +105,7 @@ namespace tests
             var finalFloor = FloorEnum.One;
             var downCommand = new Command(finalFloor, CommandTypeEnum.Down);
             var logger = new ElevatorLogger();
-            var elevator = new Elevator(logger, _delaySimulator);
+            var elevator = new Elevator(logger, _simulator);
 
             elevator.AddCommand(internalCommand);
             elevator.AddCommand(downCommand);
@@ -122,7 +122,7 @@ namespace tests
         public async Task ShouldMoveUpWaitAndDownAndUp()
         {
             var logger = new ElevatorLogger();
-            var elevator = new Elevator(logger, _delaySimulator);
+            var elevator = new Elevator(logger, _simulator);
             var floor = FloorEnum.Two;
             await MoveToFloorAsync(elevator, floor);
             var downCommand = new Command(FloorEnum.One, CommandTypeEnum.Down);
@@ -144,7 +144,7 @@ namespace tests
         public async Task ShouldMoveUpStoppingAtFloorsInAscendingFloorOrder()
         {
             var logger = new ElevatorLogger();
-            var elevator = new Elevator(logger, _delaySimulator);
+            var elevator = new Elevator(logger, _simulator);
             var commandType = CommandTypeEnum.Up;
             var firstCommand = new Command(FloorEnum.Four, commandType);
             var secondCommand = new Command(FloorEnum.Three, commandType);
@@ -167,7 +167,7 @@ namespace tests
         public async Task ShouldMoveUpWhenReceiveExternalDownCommandFromUpperFloor()
         {
             var logger = new ElevatorLogger();
-            var elevator = new Elevator(logger, _delaySimulator);
+            var elevator = new Elevator(logger, _simulator);
             var commandType = CommandTypeEnum.Down;
             var floor = FloorEnum.Four;
             var command = new Command(FloorEnum.Four, commandType);            

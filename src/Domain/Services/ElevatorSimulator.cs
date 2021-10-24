@@ -3,7 +3,7 @@ using Domain.Interfaces;
 
 namespace Domain.Services
 {
-    public class ElevatorDelaySimulator : IElevatorDelaySimulator
+    public class ElevatorSimulator : IElevatorSimulator
     {
         private const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 3000;
         private const int MILLISECONDS_TO_VISIT_FLOOR = 5000;

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface IElevatorDelaySimulator
+    public interface IElevatorSimulator
     {
         Task SimulateMoveToNextFloor();
         Task SimulateFloorVisit();

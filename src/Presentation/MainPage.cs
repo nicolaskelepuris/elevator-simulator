@@ -13,7 +13,7 @@ namespace Presentation
 
         public MainPage()
         {
-            elevator = new Elevator(new ElevatorLogger(), new ElevatorDelaySimulator());
+            elevator = new Elevator(new ElevatorLogger(), new ElevatorSimulator());
             InitializeComponent();
             BindControls();
         }
