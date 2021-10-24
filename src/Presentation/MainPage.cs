@@ -20,12 +20,17 @@ namespace Presentation
 
         private void BindControls()
         {
-            elevator.AddCurrentFloorChangedEventSubscriber(UpdateCurrentFloorTextBox);
+            elevator.AddCurrentFloorChangedEventSubscriber(UpdateElevatorData);
         }
 
-        private void UpdateCurrentFloorTextBox(object sender, CurrentFloorChangedEventArgs e)
+        private void UpdateElevatorData(object sender, ElevatorDataChangedEventArgs e)
         {
-            var floor = (int)e.Floor;
+            UpdateCurrentFloorTextBox(e);
+        }
+
+        private void UpdateCurrentFloorTextBox(ElevatorDataChangedEventArgs elevatorData)
+        {
+            var floor = (int)elevatorData.Floor;
             this.currentFloorBox.Text = floor.ToString();
         }
 

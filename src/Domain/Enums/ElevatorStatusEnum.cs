@@ -4,6 +4,7 @@ namespace Domain.Enums
     {
         Stopped,
         GoingUp,
-        GoingDown
+        GoingDown,
+        VisitingFloor
     }
 }

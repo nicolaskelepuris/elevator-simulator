@@ -18,15 +18,26 @@ namespace Domain.Entities
             set
             {
                 currentFloor = value;
-                CurrentFloorChangedEvent?.Invoke(this, new CurrentFloorChangedEventArgs(currentFloor));
+                ElevatorDataChangedEvent?.Invoke(this, new ElevatorDataChangedEventArgs(this));
             }
         }
-        public ElevatorStatusEnum Status { get; private set; }
+
+        private ElevatorStatusEnum status;
+        public ElevatorStatusEnum Status
+        {
+            get { return status; }
+            private set
+            {
+                status = value;
+                ElevatorDataChangedEvent?.Invoke(this, new ElevatorDataChangedEventArgs(this));
+            }
+        }
+
         private delegate Task MoveElevatorEventHandler(object sender, MoveElevatorEventArgs e);
         private event MoveElevatorEventHandler MoveElevatorEvent;
-
-        public delegate void CurrentFloorChangedEventHandler(object sender, CurrentFloorChangedEventArgs e);
-        private event CurrentFloorChangedEventHandler CurrentFloorChangedEvent;
+        public delegate void ElevatorDataChangedEventHandler(object sender, ElevatorDataChangedEventArgs e);
+        private event ElevatorDataChangedEventHandler ElevatorDataChangedEvent;
+        
         private readonly IElevatorLogger _logger;
         private readonly IElevatorSimulator _simulator;
 
@@ -47,7 +58,7 @@ namespace Domain.Entities
         public void AddCommand(Command command)
         {
             if (command.Floor == CurrentFloor) return;
-            
+
             if (command.Type == CommandTypeEnum.Internal)
             {
                 _logger.LogInternalCommand(command);
@@ -186,8 +197,11 @@ namespace Domain.Entities
 
         private async Task VisitCurrentFloorAsync()
         {
+            var currentStatus = Status;
+            Status = ElevatorStatusEnum.VisitingFloor;
             _logger.LogVisitedFloor(CurrentFloor);
             await _simulator.SimulateFloorVisit();
+            Status = currentStatus;
         }
 
         private void RemoveCommands(IEnumerable<Command> commandsToRemove)
@@ -231,9 +245,9 @@ namespace Domain.Entities
             return commands.Any(c => c.Floor < CurrentFloor && (c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Down));
         }
 
-        public void AddCurrentFloorChangedEventSubscriber(CurrentFloorChangedEventHandler handler)
+        public void AddCurrentFloorChangedEventSubscriber(ElevatorDataChangedEventHandler handler)
         {
-            CurrentFloorChangedEvent += handler;
+            ElevatorDataChangedEvent += handler;
         }
     }
 }
