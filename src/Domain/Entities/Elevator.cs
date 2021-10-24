@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.Enums;
 using Domain.Events;
+using Domain.Interfaces;
 
 namespace Domain.Entities
 {
     public class Elevator
     {
-        public const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 3000;
-        public const int MILLISECONDS_TO_VISIT_FLOOR = 1000;
         private Queue<Command> commands;
         private FloorEnum currentFloor;
         public FloorEnum CurrentFloor
@@ -25,18 +24,19 @@ namespace Domain.Entities
         public ElevatorStatusEnum Status { get; private set; }
         private delegate Task MoveElevatorEventHandler(object sender, MoveElevatorEventArgs e);
         private event MoveElevatorEventHandler MoveElevatorEvent;
-        private List<int> visitedFloors;
-        public List<int> VisitedFloors { get => new List<int>(visitedFloors ?? Enumerable.Empty<int>()); }
 
         public delegate void CurrentFloorChangedEventHandler(object sender, CurrentFloorChangedEventArgs e);
         private event CurrentFloorChangedEventHandler CurrentFloorChangedEvent;
+        private readonly IElevatorLogger _logger;
+        private readonly IElevatorDelaySimulator _delaySimulator;
 
-        public Elevator()
+        public Elevator(IElevatorLogger logger, IElevatorDelaySimulator delaySimulator)
         {
             commands = new Queue<Command>();
             CurrentFloor = FloorEnum.Ground;
-            visitedFloors = new List<int>();
             Stop();
+            _logger = logger;
+            _delaySimulator = delaySimulator;
         }
 
         private void Stop()
@@ -47,6 +47,11 @@ namespace Domain.Entities
         public void AddCommand(Command command)
         {
             if (command.Floor == CurrentFloor) return;
+            
+            if (command.Type == CommandTypeEnum.Internal)
+            {
+                _logger.LogInternalCommand(command);
+            }
 
             commands.Enqueue(command);
 
@@ -162,7 +167,7 @@ namespace Domain.Entities
 
         private async Task MoveToNextFloorAsync(MoveTypeEnum moveType)
         {
-            await Task.Delay(MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS);
+            await _delaySimulator.SimulateMoveToNextFloor();
 
             if (moveType == MoveTypeEnum.Up)
             {
@@ -181,8 +186,8 @@ namespace Domain.Entities
 
         private async Task VisitCurrentFloorAsync()
         {
-            visitedFloors.Add((int)CurrentFloor);
-            await Task.Delay(MILLISECONDS_TO_VISIT_FLOOR);
+            _logger.LogVisitedFloor(CurrentFloor);
+            await _delaySimulator.SimulateFloorVisit();
         }
 
         private void RemoveCommands(IEnumerable<Command> commandsToRemove)

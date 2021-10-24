@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Events;
+using Domain.Services;
 
 namespace Presentation
 {
@@ -12,7 +13,7 @@ namespace Presentation
 
         public MainPage()
         {
-            elevator = new Elevator();
+            elevator = new Elevator(new ElevatorLogger(), new ElevatorDelaySimulator());
             InitializeComponent();
             BindControls();
         }
