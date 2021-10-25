@@ -37,7 +37,7 @@ namespace Domain.Entities
         private event MoveElevatorEventHandler MoveElevatorEvent;
         public delegate void ElevatorDataChangedEventHandler(object sender, ElevatorDataChangedEventArgs e);
         private event ElevatorDataChangedEventHandler ElevatorDataChangedEvent;
-        
+
         private readonly IElevatorLogger _logger;
         private readonly IElevatorSimulator _simulator;
 
@@ -57,7 +57,7 @@ namespace Domain.Entities
 
         public void AddCommand(Command command)
         {
-            if (command.Floor == CurrentFloor) return;
+            if (ShouldIgnore(command)) return;
 
             if (command.Type == CommandTypeEnum.Internal)
             {
@@ -78,9 +78,16 @@ namespace Domain.Entities
             }
         }
 
+        private bool ShouldIgnore(Command command)
+        {
+            return command.Floor == CurrentFloor && IsStopped;
+        }
+
+        private bool IsStopped => Status == ElevatorStatusEnum.Stopped;
+
         private bool ShouldMoveUp(Command nextCommand)
         {
-            return nextCommand.Floor > CurrentFloor && Status == ElevatorStatusEnum.Stopped;
+            return nextCommand.Floor > CurrentFloor && IsStopped;
         }
 
         public bool CommandQueueContains(Command command)
@@ -213,7 +220,7 @@ namespace Domain.Entities
 
         private bool ShouldMoveDown(Command nextCommand)
         {
-            return nextCommand.Floor < CurrentFloor && Status == ElevatorStatusEnum.Stopped;
+            return nextCommand.Floor < CurrentFloor && IsStopped;
         }
 
         private bool HasNextCommand()
