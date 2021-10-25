@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.statusTextLabel = new System.Windows.Forms.Label();
+            this.statusTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.currentFloorBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -56,6 +58,8 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.statusTextLabel);
+            this.panel1.Controls.Add(this.statusTextBox);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.currentFloorBox);
             this.panel1.Controls.Add(this.label1);
@@ -69,10 +73,29 @@
             this.panel1.Size = new System.Drawing.Size(345, 386);
             this.panel1.TabIndex = 0;
             // 
+            // statusTextLabel
+            // 
+            this.statusTextLabel.AutoSize = true;
+            this.statusTextLabel.Location = new System.Drawing.Point(17, 49);
+            this.statusTextLabel.Name = "statusTextLabel";
+            this.statusTextLabel.Size = new System.Drawing.Size(39, 15);
+            this.statusTextLabel.TabIndex = 11;
+            this.statusTextLabel.Text = "Status";
+            // 
+            // statusTextBox
+            // 
+            this.statusTextBox.Location = new System.Drawing.Point(17, 67);
+            this.statusTextBox.Name = "statusTextBox";
+            this.statusTextBox.ReadOnly = true;
+            this.statusTextBox.Size = new System.Drawing.Size(128, 23);
+            this.statusTextBox.TabIndex = 10;
+            this.statusTextBox.Text = "Parado";
+            this.statusTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(132, 75);
+            this.label2.Location = new System.Drawing.Point(254, 49);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(68, 15);
             this.label2.TabIndex = 9;
@@ -81,7 +104,7 @@
             // currentFloorBox
             // 
             this.currentFloorBox.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.currentFloorBox.Location = new System.Drawing.Point(118, 45);
+            this.currentFloorBox.Location = new System.Drawing.Point(220, 67);
             this.currentFloorBox.Name = "currentFloorBox";
             this.currentFloorBox.ReadOnly = true;
             this.currentFloorBox.Size = new System.Drawing.Size(102, 23);
@@ -340,6 +363,8 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label statusTextLabel;
+        private System.Windows.Forms.TextBox statusTextBox;
     }
 }
 

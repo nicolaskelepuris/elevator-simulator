@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Enums.Extensions;
 using Domain.Events;
 using Domain.Services;
 
@@ -26,12 +27,19 @@ namespace Presentation
         private void UpdateElevatorData(object sender, ElevatorDataChangedEventArgs e)
         {
             UpdateCurrentFloorTextBox(e);
+            UpdateStatusTextBox(e);
         }
 
         private void UpdateCurrentFloorTextBox(ElevatorDataChangedEventArgs elevatorData)
         {
             var floor = (int)elevatorData.Floor;
             this.currentFloorBox.Text = floor.ToString();
+        }
+
+        private void UpdateStatusTextBox(ElevatorDataChangedEventArgs elevatorData)
+        {
+            var status = elevatorData.Status.GetDescription();
+            this.statusTextBox.Text = status;
         }
 
         private void AddInternalCommand(FloorEnum floor)
