@@ -5,7 +5,7 @@ using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Services;
 using FluentAssertions;
-using Moq;
+using tests.Mocks;
 using Xunit;
 
 namespace tests
@@ -17,10 +17,7 @@ namespace tests
         private readonly IElevatorSimulator _simulator;
         public ElevatorTests()
         {
-            var mock = new Mock<IElevatorSimulator>();
-            mock.Setup(p => p.SimulateMoveToNextFloor()).Returns(Task.Delay(50));
-            mock.Setup(p => p.SimulateFloorVisit()).Returns(Task.Delay(50));
-            _simulator = mock.Object;
+            _simulator = MockElevatorSimulator.CreateMockedInstance();
         }
 
         [Fact]
