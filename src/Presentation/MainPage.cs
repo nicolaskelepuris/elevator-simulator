@@ -4,6 +4,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.Enums.Extensions;
 using Domain.Events;
+using Domain.Interfaces;
 using Domain.Services;
 
 namespace Presentation
@@ -12,9 +13,13 @@ namespace Presentation
     {
         private Elevator elevator;
         private Timer timer;
+        private IElevatorLogger logger;
+        private IElevatorSimulator simulator;
 
         public MainPage()
         {
+            logger = new ElevatorLogger();
+            simulator = new ElevatorSimulator();
             InitializeNormalElevator();
             InitializeComponent();
         }
@@ -22,14 +27,15 @@ namespace Presentation
         private void InitializeNormalElevator()
         {
             DisposeTimer();
-            elevator = new Elevator(new ElevatorLogger(), new ElevatorSimulator());
+            elevator = new Elevator(logger, simulator);
             BindControls();
         }
 
         private void InitializeAutomaticElevator()
         {
             DisposeTimer();
-            elevator = new AutomaticElevator(new ElevatorLogger(), new ElevatorSimulator(), new Timer());
+            timer = new Timer();
+            elevator = new AutomaticElevator(logger, simulator, timer);
             BindControls();
         }
 
