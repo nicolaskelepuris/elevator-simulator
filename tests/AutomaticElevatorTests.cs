@@ -31,6 +31,7 @@ namespace tests
 
             logger.VisitedFloors.Should().BeEmpty();
             elevator.CommandQueueContains(new Command(floor, type)).Should().BeTrue();
+            elevator.Dispose();
         }
 
         [Fact]
@@ -46,6 +47,7 @@ namespace tests
 
             logger.VisitedFloors.Should().BeEmpty();
             elevator.CommandQueueContains(new Command(floor, type)).Should().BeFalse();
+            elevator.Dispose();
         }
 
         [Fact]
@@ -60,6 +62,7 @@ namespace tests
             await Task.Delay(delayTime);
 
             logger.VisitedFloors.Should().NotBeEmpty();
+            elevator.Dispose();
         }
     }
 }
