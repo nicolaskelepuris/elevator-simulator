@@ -44,7 +44,7 @@ namespace Presentation
 
         private void BindControls()
         {
-            elevator.AddCurrentFloorChangedEventSubscriber(UpdateElevatorData);
+            elevator.AddDataChangedEventSubscriber(UpdateElevatorData);
         }
 
         private void UpdateElevatorData(object sender, ElevatorDataChangedEventArgs e)

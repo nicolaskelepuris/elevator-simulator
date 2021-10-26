@@ -252,7 +252,7 @@ namespace Domain.Entities
             return commands.Any(c => c.Floor < CurrentFloor && (c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Down));
         }
 
-        public void AddCurrentFloorChangedEventSubscriber(ElevatorDataChangedEventHandler handler)
+        public void AddDataChangedEventSubscriber(ElevatorDataChangedEventHandler handler)
         {
             ElevatorDataChangedEvent += handler;
         }
