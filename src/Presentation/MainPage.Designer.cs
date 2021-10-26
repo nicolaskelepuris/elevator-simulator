@@ -53,6 +53,9 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.manualRadioButton = new System.Windows.Forms.RadioButton();
+            this.automaticRadioButton = new System.Windows.Forms.RadioButton();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -177,7 +180,7 @@
             // 
             // externalUpGround
             // 
-            this.externalUpGround.Location = new System.Drawing.Point(412, 390);
+            this.externalUpGround.Location = new System.Drawing.Point(417, 390);
             this.externalUpGround.Name = "externalUpGround";
             this.externalUpGround.Size = new System.Drawing.Size(75, 23);
             this.externalUpGround.TabIndex = 1;
@@ -188,7 +191,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(426, 370);
+            this.label3.Location = new System.Drawing.Point(436, 369);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(39, 15);
             this.label3.TabIndex = 2;
@@ -309,11 +312,47 @@
             this.label8.TabIndex = 16;
             this.label8.Text = "3";
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(417, 27);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(140, 15);
+            this.label9.TabIndex = 19;
+            this.label9.Text = "Modo de funcionamento";
+            // 
+            // manualRadioButton
+            // 
+            this.manualRadioButton.AutoSize = true;
+            this.manualRadioButton.Checked = true;
+            this.manualRadioButton.Location = new System.Drawing.Point(417, 58);
+            this.manualRadioButton.Name = "manualRadioButton";
+            this.manualRadioButton.Size = new System.Drawing.Size(65, 19);
+            this.manualRadioButton.TabIndex = 20;
+            this.manualRadioButton.TabStop = true;
+            this.manualRadioButton.Text = "Manual";
+            this.manualRadioButton.UseVisualStyleBackColor = true;
+            this.manualRadioButton.CheckedChanged += new System.EventHandler(this.manualRadioButton_CheckedChanged);
+            // 
+            // automaticRadioButton
+            // 
+            this.automaticRadioButton.AutoSize = true;
+            this.automaticRadioButton.Location = new System.Drawing.Point(418, 83);
+            this.automaticRadioButton.Name = "automaticRadioButton";
+            this.automaticRadioButton.Size = new System.Drawing.Size(88, 19);
+            this.automaticRadioButton.TabIndex = 21;
+            this.automaticRadioButton.Text = "Automatico";
+            this.automaticRadioButton.UseVisualStyleBackColor = true;
+            this.automaticRadioButton.CheckedChanged += new System.EventHandler(this.automaticRadioButton_CheckedChanged);
+            // 
             // MainPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(751, 441);
+            this.Controls.Add(this.automaticRadioButton);
+            this.Controls.Add(this.manualRadioButton);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
@@ -365,6 +404,9 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label statusTextLabel;
         private System.Windows.Forms.TextBox statusTextBox;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.RadioButton manualRadioButton;
+        private System.Windows.Forms.RadioButton automaticRadioButton;
     }
 }
 

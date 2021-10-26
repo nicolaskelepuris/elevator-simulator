@@ -14,9 +14,32 @@ namespace Presentation
 
         public MainPage()
         {
-            elevator = new Elevator(new ElevatorLogger(), new ElevatorSimulator());
+            InitializeNormalElevator();
             InitializeComponent();
+        }
+
+        private void InitializeNormalElevator()
+        {
+            DisposeAutomaticElevator();
+
+            elevator = new Elevator(new ElevatorLogger(), new ElevatorSimulator());
             BindControls();
+        }
+
+        private void InitializeAutomaticElevator()
+        {
+            DisposeAutomaticElevator();
+
+            elevator = new AutomaticElevator(new ElevatorLogger(), new ElevatorSimulator(), new Timer());
+            BindControls();
+        }
+
+        private void DisposeAutomaticElevator()
+        {
+            if (elevator != null && elevator is AutomaticElevator)
+            {
+                ((AutomaticElevator)elevator).Dispose();
+            }
         }
 
         private void BindControls()
@@ -123,6 +146,16 @@ namespace Presentation
         private void externalDown4_Click(object sender, EventArgs e)
         {
             AddExternalDownCommand(FloorEnum.Four);
+        }
+
+        private void manualRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            InitializeNormalElevator();
+        }
+
+        private void automaticRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            InitializeAutomaticElevator();
         }
     }
 }

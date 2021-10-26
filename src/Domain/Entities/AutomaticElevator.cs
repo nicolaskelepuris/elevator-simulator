@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using System.Timers;
+using System.Windows.Forms;
 using Domain.Enums;
 using Domain.Interfaces;
 
@@ -10,9 +10,9 @@ namespace Domain.Entities
     {
         private IElevatorSimulator simulator => base._simulator;
         private Timer timer;
-        public AutomaticElevator(IElevatorLogger logger, IElevatorSimulator simulator) : base(logger, simulator)
+        public AutomaticElevator(IElevatorLogger logger, IElevatorSimulator simulator, Timer timer) : base(logger, simulator)
         {
-            InitializeTimer();
+            InitializeTimer(timer);
         }
 
         public new void AddCommand(Command command)
@@ -27,15 +27,15 @@ namespace Domain.Entities
             return command.Type != Enums.CommandTypeEnum.Internal;
         }
 
-        private void InitializeTimer()
+        private void InitializeTimer(Timer timer)
         {
-            timer = new Timer();
-            timer.Elapsed += new ElapsedEventHandler(TimerEventHandler);
-            timer.Interval = simulator.MillisecondsIntervalToGenerateRandomCommand;
-            timer.Start();
+            this.timer = new Timer();
+            this.timer.Tick += new EventHandler(TimerEventHandler);
+            this.timer.Interval = simulator.MillisecondsIntervalToGenerateRandomCommand;
+            this.timer.Start();
         }
 
-        private void TimerEventHandler(object sender, ElapsedEventArgs e)
+        private void TimerEventHandler(object sender, EventArgs e)
         {
             AddRandomValidCommand();
         }

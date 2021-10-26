@@ -1,4 +1,7 @@
+using System;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces;
@@ -25,8 +28,8 @@ namespace tests
             var type = CommandTypeEnum.Internal;
             var command = new Command(floor, type);
             var logger = new ElevatorLogger();
-            var elevator = new AutomaticElevator(new ElevatorLogger(), _simulator);
-        
+            var elevator = new AutomaticElevator(new ElevatorLogger(), _simulator, new Timer());
+
             elevator.AddCommand(command);
 
             logger.VisitedFloors.Should().BeEmpty();
@@ -41,27 +44,12 @@ namespace tests
             var type = CommandTypeEnum.Down;
             var command = new Command(floor, type);
             var logger = new ElevatorLogger();
-            var elevator = new AutomaticElevator(logger, _simulator);
-        
+            var elevator = new AutomaticElevator(logger, _simulator, new Timer());
+
             elevator.AddCommand(command);
 
             logger.VisitedFloors.Should().BeEmpty();
             elevator.CommandQueueContains(new Command(floor, type)).Should().BeFalse();
-            elevator.Dispose();
-        }
-
-        [Fact]
-        public async Task ShouldAddRandomCommandAfterSimulationTimeAsync()
-        {
-            var logger = new ElevatorLogger();
-            var elevator = new AutomaticElevator(logger, _simulator);
-
-            logger.VisitedFloors.Should().BeEmpty();
-            
-            var delayTime = _simulator.MillisecondsIntervalToGenerateRandomCommand + _simulator.MillisecondsToMoveBeetweenFloors;
-            await Task.Delay(delayTime);
-
-            logger.VisitedFloors.Should().NotBeEmpty();
             elevator.Dispose();
         }
     }
