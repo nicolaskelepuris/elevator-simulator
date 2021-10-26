@@ -6,7 +6,7 @@ using Domain.Interfaces;
 
 namespace Domain.Entities
 {
-    public class AutomaticElevator : Elevator, IDisposable
+    public class AutomaticElevator : Elevator
     {
         private IElevatorSimulator simulator => base._simulator;
         private Timer timer;
@@ -68,12 +68,6 @@ namespace Domain.Entities
             var floor = validFloors.OrderBy(p => random.Next()).First();
 
             return floor;
-        }
-
-        public void Dispose()
-        {
-            timer.Dispose();
-            GC.SuppressFinalize(this);
         }
     }
 }

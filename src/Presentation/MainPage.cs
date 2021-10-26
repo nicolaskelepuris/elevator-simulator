@@ -11,6 +11,7 @@ namespace Presentation
     public partial class MainPage : Form
     {
         private Elevator elevator;
+        private Timer timer;
 
         public MainPage()
         {
@@ -20,25 +21,23 @@ namespace Presentation
 
         private void InitializeNormalElevator()
         {
-            DisposeAutomaticElevator();
-
+            DisposeTimer();
             elevator = new Elevator(new ElevatorLogger(), new ElevatorSimulator());
             BindControls();
         }
 
         private void InitializeAutomaticElevator()
         {
-            DisposeAutomaticElevator();
-
+            DisposeTimer();
             elevator = new AutomaticElevator(new ElevatorLogger(), new ElevatorSimulator(), new Timer());
             BindControls();
         }
 
-        private void DisposeAutomaticElevator()
+        private void DisposeTimer()
         {
-            if (elevator != null && elevator is AutomaticElevator)
+            if (timer != null)
             {
-                ((AutomaticElevator)elevator).Dispose();
+                timer.Dispose();
             }
         }
 
