@@ -33,21 +33,5 @@ namespace Domain.Services
         {
             visitedFloors.Add((int)floor);
         }
-
-        public async Task SaveTxtAsync(string txtFilePath)
-        {
-            await File.WriteAllLinesAsync(txtFilePath, FormatTxtLines());
-        }
-
-        private List<string> FormatTxtLines()
-        {
-            var lines = new List<string>();
-            lines.Add("Comandos do painel interno:\n");
-            commandFloors.ForEach(floor => lines.Add("\t" + floor.ToString()));
-            lines.Add("\n\n\nPavimentos visitados em ordem:\n");
-            visitedFloors.ForEach(floor => lines.Add("\t" + floor.ToString()));
-
-            return lines;
-        }
     }
 }

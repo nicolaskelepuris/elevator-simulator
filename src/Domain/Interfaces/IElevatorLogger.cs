@@ -11,6 +11,5 @@ namespace Domain.Interfaces
         List<int> VisitedFloors { get; }
         void LogInternalCommand(Command command);
         void LogVisitedFloor(FloorEnum floor);
-        Task SaveTxtAsync(string txtFilePath);
     }
 }
