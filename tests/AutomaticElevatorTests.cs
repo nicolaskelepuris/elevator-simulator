@@ -33,7 +33,7 @@ namespace tests
             elevator.AddCommand(command);
 
             logger.VisitedFloors.Should().BeEmpty();
-            elevator.CommandQueueContains(new Command(floor, type)).Should().BeTrue();
+            elevator.ContainsCommand(new Command(floor, type)).Should().BeTrue();
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace tests
             elevator.AddCommand(command);
 
             logger.VisitedFloors.Should().BeEmpty();
-            elevator.CommandQueueContains(new Command(floor, type)).Should().BeFalse();
+            elevator.ContainsCommand(new Command(floor, type)).Should().BeFalse();
         }
     }
 }

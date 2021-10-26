@@ -1,14 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Enums;
 using Domain.Events;
 using Domain.Interfaces;
+using static Domain.Events.EventHandlers;
 
 namespace Domain.Entities
 {
-    public class Elevator
+    public class Elevator : IElevator
     {
         private Queue<Command> commands;
         private FloorEnum currentFloor;
@@ -33,9 +33,7 @@ namespace Domain.Entities
             }
         }
 
-        private delegate Task MoveElevatorEventHandler(object sender, MoveElevatorEventArgs e);
         private event MoveElevatorEventHandler MoveElevatorEvent;
-        public delegate void ElevatorDataChangedEventHandler(object sender, ElevatorDataChangedEventArgs e);
         private event ElevatorDataChangedEventHandler ElevatorDataChangedEvent;
 
         private readonly IElevatorLogger _logger;
@@ -90,7 +88,7 @@ namespace Domain.Entities
             return nextCommand.Floor > CurrentFloor && IsStopped;
         }
 
-        public bool CommandQueueContains(Command command)
+        public bool ContainsCommand(Command command)
         {
             return commands.Any(c => c.Equals(command));
         }
@@ -199,7 +197,7 @@ namespace Domain.Entities
 
         private bool ShouldVisitCurrentFloor(IEnumerable<Command> commandsToGoToCurrentFloor)
         {
-            return commandsToGoToCurrentFloor.Any(c => CommandQueueContains(c));
+            return commandsToGoToCurrentFloor.Any(c => ContainsCommand(c));
         }
 
         private async Task VisitCurrentFloorAsync()
