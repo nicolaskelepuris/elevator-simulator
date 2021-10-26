@@ -6,5 +6,7 @@ namespace Domain.Interfaces
     {
         Task SimulateMoveToNextFloor();
         Task SimulateFloorVisit();
+        int MillisecondsIntervalToGenerateRandomCommand { get; }
+        int MillisecondsToMoveBeetweenFloors { get; }
     }
 }

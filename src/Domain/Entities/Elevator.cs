@@ -39,7 +39,7 @@ namespace Domain.Entities
         private event ElevatorDataChangedEventHandler ElevatorDataChangedEvent;
 
         private readonly IElevatorLogger _logger;
-        private readonly IElevatorSimulator _simulator;
+        protected readonly IElevatorSimulator _simulator;
 
         public Elevator(IElevatorLogger logger, IElevatorSimulator simulator)
         {

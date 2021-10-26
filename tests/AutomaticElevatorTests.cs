@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces;
@@ -23,10 +24,12 @@ namespace tests
             var floor = FloorEnum.Two;
             var type = CommandTypeEnum.Internal;
             var command = new Command(floor, type);
-            var elevator = new Elevator(new ElevatorLogger(), _simulator);
+            var logger = new ElevatorLogger();
+            var elevator = new AutomaticElevator(new ElevatorLogger(), _simulator);
         
             elevator.AddCommand(command);
 
+            logger.VisitedFloors.Should().BeEmpty();
             elevator.CommandQueueContains(new Command(floor, type)).Should().BeTrue();
         }
 
@@ -34,13 +37,29 @@ namespace tests
         public void ShouldNotAddExternalCommand()
         {
             var floor = FloorEnum.Two;
-            var type = CommandTypeEnum.Up;
+            var type = CommandTypeEnum.Down;
             var command = new Command(floor, type);
-            var elevator = new Elevator(new ElevatorLogger(), _simulator);
+            var logger = new ElevatorLogger();
+            var elevator = new AutomaticElevator(logger, _simulator);
         
             elevator.AddCommand(command);
 
+            logger.VisitedFloors.Should().BeEmpty();
             elevator.CommandQueueContains(new Command(floor, type)).Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task ShouldAddRandomCommandAfterSimulationTimeAsync()
+        {
+            var logger = new ElevatorLogger();
+            var elevator = new AutomaticElevator(logger, _simulator);
+
+            logger.VisitedFloors.Should().BeEmpty();
+            
+            var delayTime = _simulator.MillisecondsIntervalToGenerateRandomCommand + _simulator.MillisecondsToMoveBeetweenFloors;
+            await Task.Delay(delayTime);
+
+            logger.VisitedFloors.Should().NotBeEmpty();
         }
     }
 }
