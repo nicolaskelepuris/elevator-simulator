@@ -11,7 +11,7 @@ namespace Presentation
 {
     public partial class MainPage : Form
     {
-        private Elevator elevator;
+        private IElevator elevator;
         private Timer timer;
         private IElevatorLogger logger;
         private IElevatorSimulator simulator;
@@ -20,15 +20,15 @@ namespace Presentation
         {
             logger = new ElevatorLogger();
             simulator = new ElevatorSimulator();
-            InitializeNormalElevator();
+            InitializeManualElevator();
             InitializeComponent();
         }
 
-        private void InitializeNormalElevator()
+        private void InitializeManualElevator()
         {
             DisposeTimer();
             elevator = new Elevator(logger, simulator);
-            BindControls();
+            SubscribeToElevatorDataChangedEvent();
         }
 
         private void InitializeAutomaticElevator()
@@ -36,7 +36,7 @@ namespace Presentation
             DisposeTimer();
             timer = new Timer();
             elevator = new AutomaticElevator(logger, simulator, timer);
-            BindControls();
+            SubscribeToElevatorDataChangedEvent();
         }
 
         private void DisposeTimer()
@@ -47,7 +47,7 @@ namespace Presentation
             }
         }
 
-        private void BindControls()
+        private void SubscribeToElevatorDataChangedEvent()
         {
             elevator.AddDataChangedEventSubscriber(UpdateElevatorData);
         }
@@ -155,7 +155,7 @@ namespace Presentation
 
         private void manualRadioButton_CheckedChanged(object sender, EventArgs e)
         {
-            InitializeNormalElevator();
+            InitializeManualElevator();
         }
 
         private void automaticRadioButton_CheckedChanged(object sender, EventArgs e)
