@@ -14,19 +14,19 @@ namespace Domain.Services
         public List<int> VisitedFloors { get => new List<int>(visitedFloors ?? Enumerable.Empty<int>()); }
 
 
-        private List<int> commandFloors;
-        public List<int> CommandFloors { get => new List<int>(commandFloors ?? Enumerable.Empty<int>()); }
+        private List<int> internalCommands;
+        public List<int> InternalCommands { get => new List<int>(internalCommands ?? Enumerable.Empty<int>()); }
 
         public ElevatorLogger()
         {
             visitedFloors = new List<int>();
-            commandFloors = new List<int>();
+            internalCommands = new List<int>();
         }
 
         public void LogInternalCommand(Command command)
         {
             var floor = (int)command.Floor;
-            commandFloors.Add(floor);
+            internalCommands.Add(floor);
         }
 
         public void LogVisitedFloor(FloorEnum floor)
