@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Domain.Enums;
+using Domain.Enums.Extensions;
 using Domain.Interfaces;
 
 namespace Domain.Entities
@@ -10,7 +12,7 @@ namespace Domain.Entities
     {
         private IElevatorSimulator simulator => base._simulator;
         private Timer timer;
-        public AutomaticElevator(IElevatorLogger logger, IElevatorSimulator simulator, Timer timer) : base(logger, simulator)
+        public AutomaticElevator(IElevatorLogger logger, IElevatorSimulator simulator, Timer timer, FloorEnum currentFloor = FloorEnum.Ground) : base(logger, simulator, currentFloor)
         {
             InitializeTimer(timer);
         }
@@ -42,32 +44,38 @@ namespace Domain.Entities
 
         private void AddRandomValidCommand()
         {
-            var type = GetRandomCommandType();
             var floor = GetRandomValidFloor();
+            var type = GetRandomCommandTypeFor(floor);
 
             base.AddCommand(new Command(floor, type));
-        }
-
-        private CommandTypeEnum GetRandomCommandType()
-        {
-            var typesCount = Enum.GetValues<CommandTypeEnum>().Length;
-            var randomValue = new Random().Next(0, typesCount);
-
-            var type = (CommandTypeEnum)randomValue;
-
-            return type;
         }
 
         private FloorEnum GetRandomValidFloor()
         {
             var floors = Enum.GetValues<FloorEnum>();
-            var random = new Random();
 
             var validFloors = floors.Where(p => p != CurrentFloor);
 
-            var floor = validFloors.OrderBy(p => random.Next()).First();
+            var floor = (FloorEnum)PickRandomFrom(validFloors.Select(p => (object)p));
 
             return floor;
+        }
+
+        private CommandTypeEnum GetRandomCommandTypeFor(FloorEnum floor)
+        {
+            var types = Enum.GetValues<CommandTypeEnum>();
+
+            var validTypes = types.Where(p => p.IsValidFor(floor));
+
+            var type = (CommandTypeEnum)PickRandomFrom(validTypes.Select(p => (object)p));
+
+            return type;
+        }
+
+        private object PickRandomFrom(IEnumerable<object> items)
+        {
+            var random = new Random();
+            return items.OrderBy(p => random.Next()).First();
         }
     }
 }

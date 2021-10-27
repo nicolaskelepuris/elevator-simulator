@@ -27,15 +27,17 @@ namespace Presentation
         private void InitializeManualElevator()
         {
             DisposeTimer();
-            elevator = new Elevator(logger, simulator);
+            elevator = new Elevator(logger, simulator, currentFloor);
             SubscribeToElevatorDataChangedEvent();
         }
+
+        private FloorEnum currentFloor => elevator?.CurrentFloor ?? FloorEnum.Ground;
 
         private void InitializeAutomaticElevator()
         {
             DisposeTimer();
             timer = new Timer();
-            elevator = new AutomaticElevator(logger, simulator, timer);
+            elevator = new AutomaticElevator(logger, simulator, timer, currentFloor);
             SubscribeToElevatorDataChangedEvent();
         }
 

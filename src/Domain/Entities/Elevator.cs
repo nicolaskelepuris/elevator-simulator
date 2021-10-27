@@ -39,10 +39,10 @@ namespace Domain.Entities
         private readonly IElevatorLogger _logger;
         protected readonly IElevatorSimulator _simulator;
 
-        public Elevator(IElevatorLogger logger, IElevatorSimulator simulator)
+        public Elevator(IElevatorLogger logger, IElevatorSimulator simulator, FloorEnum currentFloor = FloorEnum.Ground)
         {
             commands = new Queue<Command>();
-            CurrentFloor = FloorEnum.Ground;
+            CurrentFloor = currentFloor;
             Stop();
             _logger = logger;
             _simulator = simulator;
