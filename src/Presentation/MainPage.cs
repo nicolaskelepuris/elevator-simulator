@@ -11,8 +11,8 @@ namespace Presentation
 {
     public partial class MainPage : Form
     {
-        private IElevator elevator;
         private Timer timer;
+        private IElevator elevator;
         private IElevatorLogger logger;
         private IElevatorSimulator simulator;
 
