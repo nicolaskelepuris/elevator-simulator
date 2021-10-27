@@ -8,7 +8,7 @@ using Domain.Interfaces;
 
 namespace Domain.Entities
 {
-    public class AutomaticElevator : Elevator
+    public class AutomaticElevator : Elevator, IDisposable
     {
         private IElevatorSimulator simulator => base._simulator;
         private Timer timer;
@@ -76,6 +76,12 @@ namespace Domain.Entities
         {
             var random = new Random();
             return items.OrderBy(p => random.Next()).First();
+        }
+
+        public void Dispose()
+        {
+            timer.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

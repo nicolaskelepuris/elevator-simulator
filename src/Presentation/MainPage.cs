@@ -11,7 +11,6 @@ namespace Presentation
 {
     public partial class MainPage : Form
     {
-        private Timer timer;
         private IElevator elevator;
         private IElevatorLogger logger;
         private IElevatorSimulator simulator;
@@ -26,26 +25,30 @@ namespace Presentation
 
         private void InitializeManualElevator()
         {
-            DisposeTimer();
+            var currentFloor = CurrentFloor();
+            DisposeAutomaticElevator();
             elevator = new Elevator(logger, simulator, currentFloor);
             SubscribeToElevatorDataChangedEvent();
         }
 
-        private FloorEnum currentFloor => elevator?.CurrentFloor ?? FloorEnum.Ground;
+        private FloorEnum CurrentFloor()
+        {
+            return elevator?.CurrentFloor ?? FloorEnum.Ground;
+        }
 
         private void InitializeAutomaticElevator()
         {
-            DisposeTimer();
-            timer = new Timer();
-            elevator = new AutomaticElevator(logger, simulator, timer, currentFloor);
+            var currentFloor = CurrentFloor();
+            DisposeAutomaticElevator();
+            elevator = new AutomaticElevator(logger, simulator, new Timer(), currentFloor);
             SubscribeToElevatorDataChangedEvent();
         }
 
-        private void DisposeTimer()
+        private void DisposeAutomaticElevator()
         {
-            if (timer != null)
+            if (elevator != null && elevator is AutomaticElevator)
             {
-                timer.Dispose();
+                ((AutomaticElevator)elevator).Dispose();
             }
         }
 
@@ -141,7 +144,7 @@ namespace Presentation
         }
 
         private void externalUp3_Click(object sender, EventArgs e)
-        { 
+        {
             AddExternalUpCommand(FloorEnum.Three);
         }
 
