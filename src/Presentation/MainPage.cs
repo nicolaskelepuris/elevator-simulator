@@ -139,7 +139,7 @@ namespace Presentation
         }
 
         private void externalUp3_Click(object sender, EventArgs e)
-        {
+        { 
             AddExternalUpCommand(FloorEnum.Three);
         }
 
