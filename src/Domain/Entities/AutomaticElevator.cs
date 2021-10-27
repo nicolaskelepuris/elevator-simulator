@@ -45,7 +45,7 @@ namespace Domain.Entities
         private void AddRandomValidCommand()
         {
             var floor = GetRandomValidFloor();
-            var type = GetRandomCommandTypeFor(floor);
+            var type = GetRandomCommandTypeValidFor(floor);
 
             base.AddCommand(new Command(floor, type));
         }
@@ -61,7 +61,7 @@ namespace Domain.Entities
             return floor;
         }
 
-        private CommandTypeEnum GetRandomCommandTypeFor(FloorEnum floor)
+        private CommandTypeEnum GetRandomCommandTypeValidFor(FloorEnum floor)
         {
             var types = Enum.GetValues<CommandTypeEnum>();
 
