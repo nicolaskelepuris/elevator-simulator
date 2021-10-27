@@ -64,21 +64,46 @@ namespace Domain.Entities
 
             commands.Enqueue(command);
 
-            var nextCommand = commands.Peek();
+            Command nextCommand = GetNextValidCommand();
 
-            if (ShouldMoveUp(nextCommand))
+            if (nextCommand != null)
             {
-                OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
-            }
-            else if (ShouldMoveDown(nextCommand))
-            {
-                OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
+                ExecuteCommand(nextCommand);
             }
         }
 
         private bool ShouldIgnore(Command command)
         {
             return command.Floor == CurrentFloor && IsStopped;
+        }
+
+        private Command GetNextValidCommand()
+        {
+            while (HasNextCommand())
+            {
+                if (ShouldIgnore(commands.Peek()))
+                {
+                    commands.Dequeue();
+                }
+                else
+                {
+                    return commands.Peek();
+                }
+            }
+
+            return null;
+        }
+
+        private void ExecuteCommand(Command command)
+        {
+            if (ShouldMoveUp(command))
+            {
+                OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
+            }
+            else if (ShouldMoveDown(command))
+            {
+                OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
+            }
         }
 
         private bool IsStopped => Status == ElevatorStatusEnum.Stopped;
@@ -112,13 +137,13 @@ namespace Domain.Entities
 
         private void SubscribeMoveUpEventHandler()
         {
-            MoveElevatorEvent -= MoveDownEventHandler;
+            MoveElevatorEvent = null;
             MoveElevatorEvent += MoveUpEventHandler;
         }
 
         private void SubscribeMoveDownEventHandler()
         {
-            MoveElevatorEvent -= MoveUpEventHandler;
+            MoveElevatorEvent = null;
             MoveElevatorEvent += MoveDownEventHandler;
         }
 
