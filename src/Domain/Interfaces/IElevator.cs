@@ -6,7 +6,7 @@ namespace Domain.Interfaces
 {
     public interface IElevator
     {
-        FloorEnum CurrentFloor { get; set; }
+        FloorEnum CurrentFloor { get; }
         ElevatorStatusEnum Status { get; }
         void AddCommand(Command command);
         bool ContainsCommand(Command command);

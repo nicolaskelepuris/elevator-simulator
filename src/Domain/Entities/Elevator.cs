@@ -15,7 +15,7 @@ namespace Domain.Entities
         public FloorEnum CurrentFloor
         {
             get { return currentFloor; }
-            set
+            private set
             {
                 currentFloor = value;
                 elevatorDataChangedEvent?.Invoke(this, new ElevatorDataChangedEventArgs(this));
