@@ -56,42 +56,28 @@ namespace Domain.Entities
         public void AddCommand(Command command)
         {
             if (ShouldIgnore(command)) return;
-
-            if (command.Type == CommandTypeEnum.Internal)
-            {
-                _logger.LogInternalCommand(command);
-            }
+            
+            LogCommand(command);
 
             commands.Enqueue(command);
 
-            Command nextCommand = GetNextValidCommand();
-
-            if (nextCommand != null)
+            if (IsStopped)
             {
-                ExecuteCommand(nextCommand);
+                ExecuteCommand(commands.Peek());
+            }
+        }
+
+        private void LogCommand(Command command)
+        {
+            if (command.Type == CommandTypeEnum.Internal)
+            {
+                _logger.LogInternalCommand(command);
             }
         }
 
         private bool ShouldIgnore(Command command)
         {
             return command.Floor == CurrentFloor && IsStopped;
-        }
-
-        private Command GetNextValidCommand()
-        {
-            while (HasNextCommand())
-            {
-                if (ShouldIgnore(commands.Peek()))
-                {
-                    commands.Dequeue();
-                }
-                else
-                {
-                    return commands.Peek();
-                }
-            }
-
-            return null;
         }
 
         private void ExecuteCommand(Command command)
@@ -168,17 +154,17 @@ namespace Domain.Entities
 
         private async Task VisitCurrentFloorAndRemoveFromCommands()
         {
-            var commandsToGoToCurrentFloor = GetCommandsToGoToCurrentFloor();
+            var possibleCommandsToGoToCurrentFloor = GetPossibleCommandsToGoToCurrentFloor();
 
-            if (ShouldVisitCurrentFloor(commandsToGoToCurrentFloor))
+            if (ShouldVisitCurrentFloor(possibleCommandsToGoToCurrentFloor))
             {
                 await VisitCurrentFloorAsync();
             }
 
-            RemoveCommands(commandsToGoToCurrentFloor);
+            RemoveCommands(possibleCommandsToGoToCurrentFloor);
         }
 
-        private List<Command> GetCommandsToGoToCurrentFloor()
+        private List<Command> GetPossibleCommandsToGoToCurrentFloor()
         {
             var commandsCurrentFloor = new List<Command>()
             {
@@ -238,7 +224,7 @@ namespace Domain.Entities
         {
             var commandsAfterRemove = commands.Where(c => !commandsToRemove.Any(command => command.Equals(c)));
 
-            this.commands = new Queue<Command>(commandsAfterRemove);
+            commands = new Queue<Command>(commandsAfterRemove);
         }
 
         private bool ShouldMoveDown(Command nextCommand)

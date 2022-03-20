@@ -5,9 +5,9 @@ namespace Domain.Services
 {
     public class ElevatorSimulator : IElevatorSimulator
     {
-        private const int MILLISECONDS_INTERVAL_TO_GENERATE_RANDOM_COMMAND = 12000;
-        private const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 1000;
-        private const int MILLISECONDS_TO_VISIT_FLOOR = 3000;
+        private const int MILLISECONDS_INTERVAL_TO_GENERATE_RANDOM_COMMAND = 700;
+        private const int MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS = 500;
+        private const int MILLISECONDS_TO_VISIT_FLOOR = 300;
 
         public int MillisecondsIntervalToGenerateRandomCommand => MILLISECONDS_INTERVAL_TO_GENERATE_RANDOM_COMMAND;
         public int MillisecondsToMoveBeetweenFloors => MILLISECONDS_TO_MOVE_BEETWEEN_FLOORS;
