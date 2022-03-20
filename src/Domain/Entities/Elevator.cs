@@ -18,7 +18,7 @@ namespace Domain.Entities
             set
             {
                 currentFloor = value;
-                ElevatorDataChangedEvent?.Invoke(this, new ElevatorDataChangedEventArgs(this));
+                elevatorDataChangedEvent?.Invoke(this, new ElevatorDataChangedEventArgs(this));
             }
         }
 
@@ -29,19 +29,21 @@ namespace Domain.Entities
             private set
             {
                 status = value;
-                ElevatorDataChangedEvent?.Invoke(this, new ElevatorDataChangedEventArgs(this));
+                elevatorDataChangedEvent?.Invoke(this, new ElevatorDataChangedEventArgs(this));
             }
         }
 
-        private bool IsStopped => Status == ElevatorStatusEnum.Stopped;
-        private Command NextCommand => commands.Peek();
-        private bool ShouldMoveUp => NextCommand.Floor > CurrentFloor;
-        private bool ShouldMoveDown => NextCommand.Floor < CurrentFloor;
-        private bool IsGoingUp => Status == ElevatorStatusEnum.GoingUp;
-        private bool IsGoingDown => Status == ElevatorStatusEnum.GoingDown;
+        private bool isStopped => Status == ElevatorStatusEnum.Stopped;
+        private Command nextCommand => commands.Peek();
+        private bool shouldMoveUp => nextCommand.Floor > CurrentFloor;
+        private bool shouldMoveDown => nextCommand.Floor < CurrentFloor;
+        private bool isGoingUp => Status == ElevatorStatusEnum.GoingUp;
+        private bool isGoingDown => Status == ElevatorStatusEnum.GoingDown;
+        private bool shouldContinueMovingDown => commands.Any(c => c.Floor < CurrentFloor);
+        private bool shouldContinueMovingUp => commands.Any(c => c.Floor > CurrentFloor);
 
-        private event MoveElevatorEventHandler MoveElevatorEvent;
-        private event ElevatorDataChangedEventHandler ElevatorDataChangedEvent;
+        private event MoveElevatorEventHandler moveElevatorEvent;
+        private event ElevatorDataChangedEventHandler elevatorDataChangedEvent;
 
         private readonly IElevatorLogger _logger;
         protected readonly IElevatorSimulator _simulator;
@@ -68,7 +70,7 @@ namespace Domain.Entities
 
             commands.Enqueue(command);
 
-            if (IsStopped)
+            if (isStopped)
             {
                 ExecuteCommand(commands.Peek());
             }
@@ -84,16 +86,16 @@ namespace Domain.Entities
 
         private bool ShouldIgnore(Command command)
         {
-            return command.Floor == CurrentFloor && IsStopped;
+            return command.Floor == CurrentFloor && isStopped;
         }
 
         private void ExecuteCommand(Command command)
         {
-            if (ShouldMoveUp)
+            if (shouldMoveUp)
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
             }
-            else if (ShouldMoveDown)
+            else if (shouldMoveDown)
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
             }
@@ -106,32 +108,32 @@ namespace Domain.Entities
 
         private void OnMoveElevatorEvent(MoveElevatorEventArgs e)
         {
-            MoveElevatorEvent = null;
+            moveElevatorEvent = null;
             switch (e.MoveType)
             {
                 case MoveTypeEnum.Up:
-                    MoveElevatorEvent += MoveUpEventHandler;
+                    moveElevatorEvent += MoveUpEventHandler;
                     break;
                 case MoveTypeEnum.Down:
-                    MoveElevatorEvent += MoveDownEventHandler;
+                    moveElevatorEvent += MoveDownEventHandler;
                     break;
                 default:
                     return;
             }
 
-            MoveElevatorEvent.Invoke(this, e);
+            moveElevatorEvent.Invoke(this, e);
         }
 
         private async Task MoveUpEventHandler(object sender, MoveElevatorEventArgs e)
         {
             Status = ElevatorStatusEnum.GoingUp;
 
-            while (ShouldContinueMovingUp())
+            while (shouldContinueMovingUp)
             {
                 await Move(MoveTypeEnum.Up);
             }
 
-            if (HasNextCommand() && ShouldMoveDown)
+            if (HasNextCommand() && shouldMoveDown)
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
                 return;
@@ -164,22 +166,17 @@ namespace Domain.Entities
                 new Command(CurrentFloor, CommandTypeEnum.Internal)
             };
 
-            if (IsGoingUp || !commands.Any(c => c.Floor < CurrentFloor))
+            if (isGoingUp || !commands.Any(c => c.Floor < CurrentFloor))
             {
                 commandsCurrentFloor.Add(new Command(CurrentFloor, CommandTypeEnum.Up));
             }
 
-            if (IsGoingDown || !commands.Any(c => c.Floor > CurrentFloor))
+            if (isGoingDown || !commands.Any(c => c.Floor > CurrentFloor))
             {
                 commandsCurrentFloor.Add(new Command(CurrentFloor, CommandTypeEnum.Down));
             }
 
             return commandsCurrentFloor;
-        }
-
-        private bool ShouldContinueMovingUp()
-        {
-            return commands.Any(c => c.Floor > CurrentFloor);
         }
 
         private async Task MoveToNextFloorAsync(MoveTypeEnum moveType)
@@ -224,12 +221,12 @@ namespace Domain.Entities
         {
             Status = ElevatorStatusEnum.GoingDown;
 
-            while (ShouldContinueMovingDown())
+            while (shouldContinueMovingDown)
             {
                 await Move(MoveTypeEnum.Down);
             }
 
-            if (HasNextCommand() && ShouldMoveUp)
+            if (HasNextCommand() && shouldMoveUp)
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
                 return;
@@ -238,14 +235,9 @@ namespace Domain.Entities
             Stop();
         }
 
-        private bool ShouldContinueMovingDown()
-        {
-            return commands.Any(c => c.Floor < CurrentFloor);
-        }
-
         public void AddDataChangedEventSubscriber(ElevatorDataChangedEventHandler handler)
         {
-            ElevatorDataChangedEvent += handler;
+            elevatorDataChangedEvent += handler;
         }
     }
 }
