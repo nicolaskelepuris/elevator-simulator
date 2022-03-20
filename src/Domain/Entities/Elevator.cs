@@ -33,6 +33,13 @@ namespace Domain.Entities
             }
         }
 
+        private bool IsStopped => Status == ElevatorStatusEnum.Stopped;
+        private Command NextCommand => commands.Peek();
+        private bool ShouldMoveUp => NextCommand.Floor > CurrentFloor;
+        private bool ShouldMoveDown => NextCommand.Floor < CurrentFloor;
+        private bool IsGoingUp => Status == ElevatorStatusEnum.GoingUp;
+        private bool IsGoingDown => Status == ElevatorStatusEnum.GoingDown;
+
         private event MoveElevatorEventHandler MoveElevatorEvent;
         private event ElevatorDataChangedEventHandler ElevatorDataChangedEvent;
 
@@ -56,7 +63,7 @@ namespace Domain.Entities
         public void AddCommand(Command command)
         {
             if (ShouldIgnore(command)) return;
-            
+
             LogCommand(command);
 
             commands.Enqueue(command);
@@ -82,21 +89,14 @@ namespace Domain.Entities
 
         private void ExecuteCommand(Command command)
         {
-            if (ShouldMoveUp(command))
+            if (ShouldMoveUp)
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
             }
-            else if (ShouldMoveDown(command))
+            else if (ShouldMoveDown)
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
             }
-        }
-
-        private bool IsStopped => Status == ElevatorStatusEnum.Stopped;
-
-        private bool ShouldMoveUp(Command nextCommand)
-        {
-            return nextCommand.Floor > CurrentFloor && IsStopped;
         }
 
         public bool ContainsCommand(Command command)
@@ -106,13 +106,14 @@ namespace Domain.Entities
 
         private void OnMoveElevatorEvent(MoveElevatorEventArgs e)
         {
+            MoveElevatorEvent = null;
             switch (e.MoveType)
             {
                 case MoveTypeEnum.Up:
-                    SubscribeMoveUpEventHandler();
+                    MoveElevatorEvent += MoveUpEventHandler;
                     break;
                 case MoveTypeEnum.Down:
-                    SubscribeMoveDownEventHandler();
+                    MoveElevatorEvent += MoveDownEventHandler;
                     break;
                 default:
                     return;
@@ -121,30 +122,16 @@ namespace Domain.Entities
             MoveElevatorEvent.Invoke(this, e);
         }
 
-        private void SubscribeMoveUpEventHandler()
-        {
-            MoveElevatorEvent = null;
-            MoveElevatorEvent += MoveUpEventHandler;
-        }
-
-        private void SubscribeMoveDownEventHandler()
-        {
-            MoveElevatorEvent = null;
-            MoveElevatorEvent += MoveDownEventHandler;
-        }
-
         private async Task MoveUpEventHandler(object sender, MoveElevatorEventArgs e)
         {
             Status = ElevatorStatusEnum.GoingUp;
 
             while (ShouldContinueMovingUp())
             {
-                await MoveToNextFloorAsync(MoveTypeEnum.Up);
-
-                await VisitCurrentFloorAndRemoveFromCommands();
+                await Move(MoveTypeEnum.Up);
             }
 
-            if (HasNextCommand() && ShouldMoveDown(commands.Peek()))
+            if (HasNextCommand() && ShouldMoveDown)
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
                 return;
@@ -153,19 +140,24 @@ namespace Domain.Entities
             Stop();
         }
 
-        private async Task VisitCurrentFloorAndRemoveFromCommands()
+        private async Task Move(MoveTypeEnum moveType)
         {
-            var possibleCommandsToGoToCurrentFloor = GetPossibleCommandsToGoToCurrentFloor();
+            await MoveToNextFloorAsync(moveType);
 
-            if (ShouldVisitCurrentFloor(possibleCommandsToGoToCurrentFloor))
-            {
-                await VisitCurrentFloorAsync();
-            }
-
-            RemoveCommands(possibleCommandsToGoToCurrentFloor);
+            await VisitCurrentFloorAndRemoveFromCommands();
         }
 
-        private List<Command> GetPossibleCommandsToGoToCurrentFloor()
+        private async Task VisitCurrentFloorAndRemoveFromCommands()
+        {
+            var commandsToCurrentFloor = GetPossibleCommandsRequiresVisitingCurrentFloor();
+
+            if (!ShouldVisitCurrentFloor(commandsToCurrentFloor)) return;
+
+            await VisitCurrentFloorAsync();
+            RemoveCommands(commandsToCurrentFloor);
+        }
+
+        private List<Command> GetPossibleCommandsRequiresVisitingCurrentFloor()
         {
             var commandsCurrentFloor = new List<Command>()
             {
@@ -184,9 +176,6 @@ namespace Domain.Entities
 
             return commandsCurrentFloor;
         }
-
-        private bool IsGoingUp => Status == ElevatorStatusEnum.GoingUp;
-        private bool IsGoingDown => Status == ElevatorStatusEnum.GoingDown;
 
         private bool ShouldContinueMovingUp()
         {
@@ -223,14 +212,7 @@ namespace Domain.Entities
 
         private void RemoveCommands(IEnumerable<Command> commandsToRemove)
         {
-            var commandsAfterRemove = commands.Where(c => !commandsToRemove.Any(command => command.Equals(c)));
-
-            commands = new Queue<Command>(commandsAfterRemove);
-        }
-
-        private bool ShouldMoveDown(Command nextCommand)
-        {
-            return nextCommand.Floor < CurrentFloor && IsStopped;
+            commands = new Queue<Command>(commands.Except(commandsToRemove));
         }
 
         private bool HasNextCommand()
@@ -244,17 +226,15 @@ namespace Domain.Entities
 
             while (ShouldContinueMovingDown())
             {
-                await MoveToNextFloorAsync(MoveTypeEnum.Down);
-
-                await VisitCurrentFloorAndRemoveFromCommands();
+                await Move(MoveTypeEnum.Down);
             }
 
-            if (HasNextCommand() && ShouldMoveUp(commands.Peek()))
+            if (HasNextCommand() && ShouldMoveUp)
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
                 return;
             }
-            
+
             Stop();
         }
 
