@@ -144,12 +144,13 @@ namespace Domain.Entities
                 await VisitCurrentFloorAndRemoveFromCommands();
             }
 
-            Stop();
-
             if (HasNextCommand() && ShouldMoveDown(commands.Peek()))
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Down));
+                return;
             }
+
+            Stop();
         }
 
         private async Task VisitCurrentFloorAndRemoveFromCommands()
@@ -248,17 +249,18 @@ namespace Domain.Entities
                 await VisitCurrentFloorAndRemoveFromCommands();
             }
 
-            Stop();
-
             if (HasNextCommand() && ShouldMoveUp(commands.Peek()))
             {
                 OnMoveElevatorEvent(new MoveElevatorEventArgs(MoveTypeEnum.Up));
+                return;
             }
+            
+            Stop();
         }
 
         private bool ShouldContinueMovingDown()
         {
-            return commands.Any(c => c.Floor < CurrentFloor && (c.Type == CommandTypeEnum.Internal || c.Type == CommandTypeEnum.Down));
+            return commands.Any(c => c.Floor < CurrentFloor);
         }
 
         public void AddDataChangedEventSubscriber(ElevatorDataChangedEventHandler handler)
